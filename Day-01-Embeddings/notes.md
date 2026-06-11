@@ -546,3 +546,429 @@ Cosine similarity is then used to find the most relevant document chunks.
 6. Cosine similarity is the core mechanism behind retrieval in RAG systems.
 
 7. Understanding embeddings and cosine similarity is the first step toward understanding vector databases and Retrieval-Augmented Generation.
+
+---
+
+# Chunking
+
+Before documents are stored inside a vector database, they are usually split into smaller pieces called chunks.
+
+Chunking is the process of breaking a large document into smaller units that can be embedded and retrieved efficiently.
+
+Example:
+
+Large Document:
+
+```text
+Internship duration is 2 months.
+
+Interns receive a stipend of 15000 rupees per month.
+
+Applications close on June 30.
+
+Selected candidates will work on AI projects.
+```
+
+After Chunking:
+
+```text
+Chunk 1
+
+Internship duration is 2 months.
+
+Interns receive a stipend of 15000 rupees per month.
+```
+
+```text
+Chunk 2
+
+Applications close on June 30.
+
+Selected candidates will work on AI projects.
+```
+
+Each chunk receives its own embedding.
+
+---
+
+# Why Is Chunking Important?
+
+Without chunking:
+
+```text
+Entire PDF
+
+↓
+
+Single Embedding
+```
+
+This causes multiple topics to be mixed together.
+
+Example:
+
+```text
+Internship Details
+Stipend
+Application Process
+Projects
+Attendance
+Deadlines
+```
+
+One embedding must represent all of these topics simultaneously.
+
+Retrieval quality becomes poor.
+
+With chunking:
+
+```text
+Document
+
+↓
+
+Chunk 1
+
+Chunk 2
+
+Chunk 3
+
+↓
+
+Individual Embeddings
+```
+
+The retriever can now find only the relevant chunk.
+
+---
+
+# Types of Chunking
+
+## Fixed Size Chunking
+
+The document is divided into fixed word counts.
+
+Example:
+
+```text
+Chunk Size = 100 Words
+```
+
+Advantages:
+
+* Simple
+* Fast
+
+Disadvantages:
+
+* May split sentences
+* May lose context
+
+---
+
+## Fixed Size Chunking With Overlap
+
+Example:
+
+```text
+Chunk Size = 100
+
+Overlap = 20
+```
+
+Chunks share some words.
+
+Example:
+
+```text
+Chunk 1
+
+Words 1-100
+```
+
+```text
+Chunk 2
+
+Words 81-180
+```
+
+This helps preserve context near chunk boundaries.
+
+---
+
+## Semantic Chunking
+
+Semantic chunking groups text based on meaning rather than word count.
+
+Instead of asking:
+
+```text
+Have I reached 100 words?
+```
+
+it asks:
+
+```text
+Has the topic changed?
+```
+
+Example:
+
+```text
+Internship duration is 2 months.
+
+Interns receive a stipend of 15000 rupees.
+
+Applications close on June 30.
+
+Selected candidates will be contacted by email.
+
+Internship benefits include mentorship.
+
+The internship stipend is paid monthly.
+```
+
+Semantic chunking may produce:
+
+```text
+Chunk 1
+
+Internship duration is 2 months.
+
+Interns receive a stipend of 15000 rupees.
+
+Internship benefits include mentorship.
+
+The internship stipend is paid monthly.
+```
+
+```text
+Chunk 2
+
+Applications close on June 30.
+
+Selected candidates will be contacted by email.
+```
+
+Notice that internship-related information remains together.
+
+---
+
+# Pairwise Semantic Chunking
+
+To better understand semantic chunking, I implemented a pairwise similarity approach.
+
+Workflow:
+
+```text
+Sentence
+
+↓
+
+Embedding
+
+↓
+
+Compare Against Other Sentences
+
+↓
+
+Cosine Similarity
+
+↓
+
+Group Similar Sentences
+```
+
+Example:
+
+```text
+Sentence 1
+
+Internship duration is 2 months.
+```
+
+```text
+Sentence 2
+
+Interns receive a stipend of 15000 rupees.
+```
+
+These may have:
+
+```text
+Similarity = 0.82
+```
+
+and therefore belong to the same chunk.
+
+---
+
+# Pairwise Semantic Chunking Code Logic
+
+Step 1:
+
+Convert every sentence into an embedding.
+
+```text
+Sentence
+
+↓
+
+Embedding
+```
+
+---
+
+Step 2:
+
+Compare every sentence with all remaining sentences.
+
+```text
+Sentence 1
+
+↓
+
+Compare
+
+↓
+
+Sentence 2
+
+Sentence 3
+
+Sentence 4
+```
+
+---
+
+Step 3:
+
+Calculate cosine similarity.
+
+```text
+Similarity Score
+```
+
+Example:
+
+```text
+0.85
+```
+
+means highly related.
+
+---
+
+Step 4:
+
+If similarity exceeds a threshold:
+
+```python
+threshold = 0.55
+```
+
+the sentence is added to the same chunk.
+
+---
+
+Step 5:
+
+Display all discovered chunks.
+
+---
+
+# Limitation of Pairwise Semantic Chunking
+
+Suppose:
+
+```text
+Sentence 1
+
+Internship duration
+```
+
+```text
+Sentence 2
+
+Internship stipend
+```
+
+```text
+Sentence 3
+
+Application deadline
+```
+
+```text
+Sentence 4
+
+Internship benefits
+```
+
+Sentence 1 and Sentence 4 may be highly related even though Sentence 3 appears between them.
+
+Basic pairwise approaches may not always capture these long-range relationships.
+
+More advanced systems use:
+
+* Centroid-Based Chunking
+* Graph-Based Chunking
+* Hierarchical Clustering
+* Recursive Chunking
+
+to preserve topic coherence.
+
+---
+
+# How Chunking Fits Into RAG
+
+Complete RAG Pipeline:
+
+```text
+PDF
+
+↓
+
+Chunking
+
+↓
+
+Chunk 1
+Chunk 2
+Chunk 3
+
+↓
+
+Embeddings
+
+↓
+
+Vector Database
+
+↓
+
+User Query
+
+↓
+
+Query Embedding
+
+↓
+
+Similarity Search
+
+↓
+
+Retrieve Relevant Chunks
+
+↓
+
+LLM
+
+↓
+
+Final Answer
+```
+
+Chunking is one of the most important preprocessing steps in Retrieval-Augmented Generation because retrieval quality depends heavily on chunk quality.

@@ -12,10 +12,10 @@ The goal is to understand every component of a RAG pipeline before using framewo
 * Sentence Transformers
 * Cosine Similarity
 * Vector Search
-* Vector Databases
 * ChromaDB
-* FAISS
+* Vector Databases
 * Retrieval-Augmented Generation
+* FAISS
 * LangChain
 * Agentic RAG
 
@@ -33,18 +33,18 @@ Topics Learned:
 * Tokenization
 * Transformer Layers
 * Pooling
-* encode() Function
+* encode()
 * Cosine Similarity
 
 Files:
 
-```text
 day1-embeddings/
 
-embedding_demo.py
-cosine_similarity_demo.py
-notes.md
-```
+* embedding_demo.py
+* cosine_similarity_demo.py
+* notes.md
+
+---
 
 ### Day 2 - Manual Vector Search ✅
 
@@ -55,34 +55,48 @@ Topics Learned:
 * Query Embeddings
 * Document Embeddings
 * Similarity Ranking
-* Retrieval Pipeline
 * Manual Vector Search
 
 Files:
 
-```text
 Day-02-Vector-Search/
 
-vector_search.py
-notes.md
-```
+* vector_search.py
+* notes.md
+
+---
+
+### Day 3 - ChromaDB and Vector Databases ✅
+
+Topics Learned:
+
+* Vector Databases
+* ChromaDB
+* Collections
+* add()
+* query()
+* User Query Input
+* Similarity Search
+* Automatic Embedding Generation
+
+Files:
+
+Day-03-ChromaDB/
+
+* chromadb_demo.py
+* chromadb_user_query.py
+* notes.md
 
 ---
 
 ## Upcoming Topics
 
-### Day 3
-
-* ChromaDB
-* Real Vector Database
-* Insert Documents
-* Query Documents
-
 ### Day 4
 
 * FAISS
 * Indexing
-* Nearest Neighbor Search
+* Approximate Nearest Neighbors
+* Fast Retrieval
 
 ### Day 5
 
@@ -100,20 +114,14 @@ notes.md
 
 ## Repository Structure
 
-```text
 RAG/
 
 ├── README.md
 ├── .gitignore
 
 ├── day1-embeddings
-│   ├── embedding_demo.py
-│   ├── cosine_similarity_demo.py
-│   └── notes.md
 
 ├── Day-02-Vector-Search
-│   ├── vector_search.py
-│   └── notes.md
 
 ├── Day-03-ChromaDB
 
@@ -122,7 +130,6 @@ RAG/
 ├── Day-05-RAG-From-Scratch
 
 └── Interview-Notes
-```
 
 ---
 

@@ -972,3 +972,622 @@ Final Answer
 ```
 
 Chunking is one of the most important preprocessing steps in Retrieval-Augmented Generation because retrieval quality depends heavily on chunk quality.
+# Day 1 - Fixed Size Chunking
+
+## Summary
+
+Today I learned about Fixed Size Chunking, which is one of the most fundamental preprocessing techniques used in Retrieval-Augmented Generation (RAG).
+
+Before generating embeddings, large documents are usually divided into smaller pieces called chunks.
+
+These chunks are then converted into embeddings and stored inside a vector database.
+
+Chunking improves retrieval quality because embeddings represent smaller, more focused pieces of information.
+
+---
+
+# What Is Chunking?
+
+Chunking is the process of dividing a large document into smaller sections.
+
+Example:
+
+Large Document:
+
+```text
+Internship duration is 2 months.
+
+Interns receive a stipend of 15000 rupees per month.
+
+Applications close on June 30.
+
+Selected candidates will work on AI projects.
+```
+
+After Chunking:
+
+```text
+Chunk 1
+
+Internship duration is 2 months.
+
+Interns receive a stipend of 15000 rupees per month.
+```
+
+```text
+Chunk 2
+
+Applications close on June 30.
+
+Selected candidates will work on AI projects.
+```
+
+Each chunk receives its own embedding.
+
+---
+
+# Why Do We Need Chunking?
+
+Suppose we have a PDF containing:
+
+```text
+Internship Details
+
+Stipend Information
+
+Application Process
+
+Project Information
+
+Attendance Rules
+
+Deadlines
+```
+
+If the entire document is converted into a single embedding:
+
+```text
+PDF
+
+↓
+
+One Embedding
+```
+
+multiple topics become mixed together.
+
+This reduces retrieval accuracy.
+
+Instead:
+
+```text
+PDF
+
+↓
+
+Chunk 1
+
+Chunk 2
+
+Chunk 3
+
+↓
+
+Separate Embeddings
+```
+
+Each embedding represents a specific topic.
+
+This improves retrieval quality.
+
+---
+
+# What Is Fixed Size Chunking?
+
+Fixed Size Chunking divides text based on a predefined number of words.
+
+Example:
+
+```python
+chunk_size = 20
+```
+
+means:
+
+```text
+20 Words Per Chunk
+```
+
+Regardless of sentence boundaries.
+
+Example:
+
+```text
+Word 1
+Word 2
+...
+Word 20
+```
+
+becomes:
+
+```text
+Chunk 1
+```
+
+The next 20 words become:
+
+```text
+Chunk 2
+```
+
+and so on.
+
+---
+
+# Workflow
+
+The complete workflow is:
+
+```text
+PDF
+
+↓
+
+Extract Text
+
+↓
+
+Split Into Words
+
+↓
+
+Create Chunks
+
+↓
+
+Store Chunks
+
+↓
+
+Generate Embeddings
+```
+
+---
+
+# Code Workflow
+
+The code follows these steps:
+
+### Step 1
+
+Load the PDF.
+
+```python
+reader = PdfReader(
+    "internship_handbook.pdf"
+)
+```
+
+---
+
+### Step 2
+
+Extract text from every page.
+
+```python
+for page in reader.pages:
+
+    text += page.extract_text()
+```
+
+Result:
+
+```text
+Entire PDF Text
+```
+
+stored inside:
+
+```python
+text
+```
+
+---
+
+### Step 3
+
+Split the text into words.
+
+```python
+words = text.split()
+```
+
+Example:
+
+Before:
+
+```text
+Internship duration is 2 months
+```
+
+After:
+
+```python
+[
+ "Internship",
+ "duration",
+ "is",
+ "2",
+ "months"
+]
+```
+
+---
+
+### Step 4
+
+Define chunk size.
+
+```python
+chunk_size = 20
+```
+
+Meaning:
+
+```text
+Every Chunk
+
+↓
+
+20 Words
+```
+
+---
+
+### Step 5
+
+Create chunks.
+
+```python
+for i in range(
+    0,
+    len(words),
+    chunk_size
+):
+```
+
+The loop moves through the document in steps of 20 words.
+
+Example:
+
+```text
+0
+
+20
+
+40
+
+60
+```
+
+Each value represents the starting position of a chunk.
+
+---
+
+### Step 6
+
+Slice the words.
+
+```python
+chunk_words = words[
+    i:i+chunk_size
+]
+```
+
+Example:
+
+```python
+words[20:40]
+```
+
+returns:
+
+```text
+Words 20–39
+```
+
+---
+
+### Step 7
+
+Convert words back into text.
+
+```python
+chunk_text = " ".join(
+    chunk_words
+)
+```
+
+Before:
+
+```python
+[
+ "Internship",
+ "duration",
+ "is",
+ "2"
+]
+```
+
+After:
+
+```text
+Internship duration is 2
+```
+
+---
+
+### Step 8
+
+Store the chunk.
+
+```python
+chunks.append(
+    chunk_text
+)
+```
+
+The chunk is added to the chunk list.
+
+---
+
+### Step 9
+
+Display all chunks.
+
+```python
+for index, chunk in enumerate(
+    chunks
+):
+```
+
+Example output:
+
+```text
+Chunk 1
+
+Internship duration is 2 months...
+```
+
+```text
+Chunk 2
+
+Applications close on June 30...
+```
+
+---
+
+# Understanding Key Python Functions
+
+## split()
+
+Converts text into a list of words.
+
+Example:
+
+```python
+text.split()
+```
+
+Output:
+
+```python
+[
+ "Internship",
+ "duration",
+ "is",
+ "2",
+ "months"
+]
+```
+
+---
+
+## join()
+
+Converts a list of words back into text.
+
+Example:
+
+```python
+" ".join(words)
+```
+
+Output:
+
+```text
+Internship duration is 2 months
+```
+
+---
+
+## range()
+
+Generates a sequence of numbers.
+
+Example:
+
+```python
+range(
+    0,
+    80,
+    20
+)
+```
+
+Produces:
+
+```text
+0
+
+20
+
+40
+
+60
+```
+
+---
+
+## append()
+
+Adds an item to a list.
+
+Example:
+
+```python
+chunks.append(
+    chunk_text
+)
+```
+
+---
+
+## enumerate()
+
+Adds numbering while looping.
+
+Example:
+
+```python
+for index, chunk in enumerate(
+    chunks
+)
+```
+
+Produces:
+
+```text
+Chunk 1
+
+Chunk 2
+
+Chunk 3
+```
+
+---
+
+# Advantages of Fixed Size Chunking
+
+1. Simple to implement.
+
+2. Very fast.
+
+3. Works well for small projects.
+
+4. Easy to understand.
+
+---
+
+# Limitations of Fixed Size Chunking
+
+Fixed size chunking ignores sentence boundaries.
+
+Example:
+
+```text
+Chunk 1
+
+The stipend is credited
+```
+
+```text
+Chunk 2
+
+on the first working day...
+```
+
+The sentence becomes split across chunks.
+
+This can reduce retrieval quality.
+
+---
+
+# Why Better Chunking Methods Exist
+
+Because fixed size chunking can split related information, more advanced techniques were developed:
+
+* Fixed Size Chunking with Overlap
+* Sentence-Based Chunking
+* Semantic Chunking
+* Recursive Chunking
+* Document-Aware Chunking
+
+These methods preserve context more effectively.
+
+---
+
+# How Fixed Size Chunking Fits Into RAG
+
+A typical RAG pipeline looks like:
+
+```text
+PDF
+
+↓
+
+Chunking
+
+↓
+
+Chunk 1
+Chunk 2
+Chunk 3
+
+↓
+
+Embeddings
+
+↓
+
+Vector Database
+
+↓
+
+User Query
+
+↓
+
+Retrieve Relevant Chunks
+
+↓
+
+LLM
+
+↓
+
+Final Answer
+```
+
+Fixed Size Chunking is usually the first chunking strategy learned because it introduces the concept of dividing large documents before embedding and retrieval.
+
+---
+
+# Key Takeaways
+
+1. Chunking divides large documents into smaller pieces.
+
+2. Fixed Size Chunking uses a predefined word count.
+
+3. Chunking improves retrieval quality.
+
+4. Fixed Size Chunking is simple and fast.
+
+5. Fixed Size Chunking may split sentences and lose context.
+
+6. More advanced chunking strategies solve these limitations.
+
+7. Chunking is one of the first preprocessing steps in every RAG pipeline.
+
+8. Understanding chunking is essential before learning vector databases and advanced retrieval techniques.

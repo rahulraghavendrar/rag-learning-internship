@@ -1,129 +1,108 @@
 # RAG Learning Internship
 
-## Preliminary Foundation Phase
+## Status
 
-### Day 01 - Embeddings & Chunking
+### ✅ Preliminary Foundation Completed
 
 Topics Covered:
 
 * Embeddings
-* all-MiniLM-L6-v2
-* encode()
 * Cosine Similarity
 * Fixed Size Chunking
 * Semantic Chunking
-
-Files:
-
-* embedding_demo.py
-* cosine_similarity.py
-* fixedsize_chunking.py
-* semantic_chunking.py
-
----
-
-### Day 02 - Vector Search
-
-Topics Covered:
-
-* Vector Search
-* Similarity Search
+* Manual Retrieval
+* ChromaDB
+* Qdrant
+* RAG Fundamentals
 * Top-K Retrieval
-
-Files:
-
-* vector_search.py
-
----
-
-### Day 03 - ChromaDB
-
-Topics Covered:
-
-* ChromaDB Basics
-* Collections
-* Documents
-* Similarity Search
-
-Files:
-
-* chromadb_demo.py
-* chromadb_user_query.py
-
----
-
-### Day 04 - Qdrant
-
-Topics Covered:
-
-* Collections
-* Points
-* Payloads
-* VectorParams
-* Upsert
-* Query Points
-* Top-K Retrieval
-
-Files:
-
-* qdrant_demo.py
-
----
-
-### Day 05 - RAG Foundations
-
-Topics Covered:
-
-* What is RAG
-* RAG vs Fine-Tuning
-* RAG vs Prompt Engineering
-* Dense vs Sparse Retrieval
-* Context Window
+* Precision & Recall
 * Hallucinations
-* Precision
-* Recall
-* Retrieval Quality
-
-Files:
-
-* retrieval_quality_demo.py
-
----
-
-### LangChain Fundamentals
-
-Topics Covered:
-
-* Document
+* Context Window
+* LangChain Fundamentals
 * PyPDFLoader
 * RecursiveCharacterTextSplitter
 * HuggingFaceEmbeddings
 * Qdrant Vector Store
 * Retriever
 
-Files:
+---
 
-* langchain_document_basics.py
-* langchain_pdf_loader.py
-* langchain_text_splitter.py
-* langchain_embeddings.py
-* langchain_qdrant_retriever.py
-* langchain_complete_rag_pipeline.py
+## ✅ Day 01 Completed - RAG Foundations & Architecture
+
+Topics Covered:
+
+* What is RAG?
+* Why Not Fine-Tuning?
+* RAG vs Fine-Tuning vs Prompt Engineering
+* Core RAG Pipeline
+
+  * Index
+  * Retrieve
+  * Augment
+  * Generate
+* Vector Databases
+* Embedding Models
+* Similarity Search
+* Indexing
+* Real World RAG Applications
+* Lewis et al. (2020) RAG Paper Overview
+
+### Lab 1
+
+Built a Naive RAG Pipeline
+
+Components:
+
+* PDF Loader
+* Chunking
+* Embeddings
+* Qdrant
+* Retriever
+
+Deliverable:
+
+* Working Retrieval System
+* Multi-PDF Search
+* Semantic Retrieval
 
 ---
 
-## Status
-
-✅ Preliminary Foundation Completed
-
-🚀 Next Phase: Internship Day 1 - RAG Foundations & Architecture
+## 🚀 Next: Day 02 - Chunking Strategies & Text Processing
 
 Topics:
 
-* End-to-End RAG Pipeline
-* Index → Retrieve → Augment → Generate
-* Build a Naive RAG System
-* Qdrant + LangChain Integration
-* Real PDF Knowledge Base
-* Retrieval Evaluation
-* Lewis et al. (2020) RAG Paper
+* Why Chunking Matters
+* Context Windows
+* Retrieval Relevance
+* Latency Tradeoffs
+* Fixed-Size Chunking
+* Semantic Chunking
+* Recursive Chunking
+* Sliding Window Chunking
+* Structure-Aware Chunking
+
+### Lab 2
+
+Compare Multiple Chunking Strategies
+
+Deliverables:
+
+* Chunk Coherence Analysis
+* Retrieval Quality Comparison
+* Retrieval Accuracy Evaluation
+
+---
+
+## Roadmap Progress
+
+✅ Preliminary Foundation
+
+✅ Day 01 - RAG Foundations & Architecture
+
+⬜ Day 02 - Chunking Strategies & Text Processing
+
+⬜ Day 03 - Advanced Retrieval & Reranking
+
+⬜ Day 04 - RAG Evaluation & Metrics
+
+⬜ Day 05 - Advanced RAG Architectures & Capstone Project

@@ -473,3 +473,412 @@ Next:
 ➡ Advanced Retrieval
 
 ➡ Full RAG Pipelines
+
+# Day 04 - Qdrant Basics
+
+## Goal
+
+Learn how a vector database stores embeddings and performs semantic retrieval.
+
+Qdrant is the first production-grade vector database I learned before moving to LangChain.
+
+---
+
+# What is Qdrant?
+
+Qdrant is a Vector Database.
+
+Unlike SQL databases which store rows and columns, Qdrant stores:
+
+* Embeddings (Vectors)
+* Documents
+* Metadata (Payloads)
+
+Workflow:
+
+```text
+Document
+↓
+Embedding
+↓
+Qdrant
+
+Question
+↓
+Embedding
+↓
+Qdrant Search
+↓
+Top Matches
+```
+
+---
+
+# Why Do We Need Qdrant?
+
+Without Qdrant:
+
+```text
+Documents
+↓
+Embeddings
+↓
+Python List
+↓
+Compare One By One
+```
+
+This becomes slow for thousands or millions of documents.
+
+With Qdrant:
+
+```text
+Documents
+↓
+Embeddings
+↓
+Qdrant
+↓
+Fast Similarity Search
+```
+
+---
+
+# Important Concepts
+
+## Collection
+
+Similar to a SQL table.
+
+Example:
+
+```python
+collection_name="internship_docs"
+```
+
+Stores:
+
+* Points
+* Vectors
+* Payloads
+
+---
+
+## Point
+
+One record inside a collection.
+
+Contains:
+
+```text
+ID
+Vector
+Payload
+```
+
+Example:
+
+```python
+PointStruct(
+    id=1,
+    vector=[...],
+    payload={...}
+)
+```
+
+---
+
+## Vector
+
+The embedding generated from text.
+
+Example:
+
+```text
+Internship duration is 2 months
+```
+
+↓
+
+```python
+[0.12, -0.44, 0.89, ...]
+```
+
+---
+
+## Payload
+
+Extra information stored alongside the vector.
+
+Example:
+
+```python
+payload={
+    "text":"Internship duration is 2 months"
+}
+```
+
+---
+
+# Libraries Used
+
+## SentenceTransformer
+
+```python
+from sentence_transformers import SentenceTransformer
+```
+
+Purpose:
+
+```text
+Text
+↓
+Embedding
+```
+
+---
+
+## QdrantClient
+
+```python
+from qdrant_client import QdrantClient
+```
+
+Purpose:
+
+```text
+Connect To Qdrant
+```
+
+---
+
+## VectorParams
+
+```python
+from qdrant_client.models import VectorParams
+```
+
+Purpose:
+
+Configure collection vectors.
+
+Example:
+
+```python
+VectorParams(
+    size=384,
+    distance=Distance.COSINE
+)
+```
+
+Meaning:
+
+* Embedding size = 384
+* Similarity = Cosine
+
+---
+
+## PointStruct
+
+```python
+from qdrant_client.models import PointStruct
+```
+
+Purpose:
+
+Create records for Qdrant.
+
+---
+
+## Distance
+
+```python
+from qdrant_client.models import Distance
+```
+
+Purpose:
+
+Choose similarity metric.
+
+Example:
+
+```python
+Distance.COSINE
+```
+
+Other options:
+
+* COSINE
+* DOT
+* EUCLID
+* MANHATTAN
+
+For RAG:
+
+```python
+Distance.COSINE
+```
+
+is usually used.
+
+---
+
+# Important Functions
+
+## encode()
+
+```python
+model.encode(text)
+```
+
+Converts text into embeddings.
+
+Example:
+
+```text
+Text
+↓
+Vector
+```
+
+---
+
+## tolist()
+
+```python
+embedding.tolist()
+```
+
+Converts:
+
+```python
+numpy array
+```
+
+↓
+
+```python
+python list
+```
+
+Qdrant requires Python lists.
+
+---
+
+## create_collection()
+
+```python
+client.create_collection(...)
+```
+
+Creates a collection.
+
+Think:
+
+```text
+SQL
+↓
+CREATE TABLE
+```
+
+---
+
+## upsert()
+
+```python
+client.upsert(...)
+```
+
+Stores points inside Qdrant.
+
+Think:
+
+```text
+Save To Database
+```
+
+---
+
+## query_points()
+
+```python
+client.query_points(...)
+```
+
+Retrieves the most similar vectors.
+
+Think:
+
+```text
+Question
+↓
+Embedding
+↓
+Search
+↓
+Top Matches
+```
+
+---
+
+# Top-K Retrieval
+
+Example:
+
+```python
+limit=3
+```
+
+Meaning:
+
+```text
+Return Top 3 Results
+```
+
+Common values:
+
+* Top 3
+* Top 5
+* Top 10
+
+---
+
+# Complete Pipeline
+
+```text
+Documents
+↓
+Embeddings
+↓
+Qdrant Collection
+↓
+User Question
+↓
+Query Embedding
+↓
+query_points()
+↓
+Top Matching Documents
+```
+
+---
+
+# Key Takeaways
+
+✅ Qdrant is a vector database.
+
+✅ Collections store vectors and payloads.
+
+✅ Points are individual records.
+
+✅ Embeddings are stored as vectors.
+
+✅ Payloads store original text and metadata.
+
+✅ upsert() stores data.
+
+✅ query_points() retrieves data.
+
+✅ Qdrant performs semantic search using vector similarity.
+
+✅ This forms the Retrieve step of a RAG pipeline.

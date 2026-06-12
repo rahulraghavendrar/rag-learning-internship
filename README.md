@@ -1,138 +1,129 @@
-# RAG Learning Journey
+# RAG Learning Internship
 
-This repository documents my journey of learning Retrieval-Augmented Generation (RAG) from first principles.
+## Preliminary Foundation Phase
 
-The goal is to understand every component of a RAG pipeline before using frameworks such as LangChain and LlamaIndex.
+### Day 01 - Embeddings & Chunking
 
----
-
-## Topics Covered
+Topics Covered:
 
 * Embeddings
-* Sentence Transformers
-* Cosine Similarity
-* Vector Search
-* ChromaDB
-* Vector Databases
-* Retrieval-Augmented Generation
-* FAISS
-* LangChain
-* Agentic RAG
-
----
-
-## Progress
-
-### Day 1 - Embeddings and Cosine Similarity ✅
-
-Topics Learned:
-
-* Embeddings
-* Sentence Transformers
 * all-MiniLM-L6-v2
-* Tokenization
-* Transformer Layers
-* Pooling
 * encode()
 * Cosine Similarity
+* Fixed Size Chunking
+* Semantic Chunking
 
 Files:
-
-day1-embeddings/
 
 * embedding_demo.py
-* cosine_similarity_demo.py
-* notes.md
+* cosine_similarity.py
+* fixedsize_chunking.py
+* semantic_chunking.py
 
 ---
 
-### Day 2 - Manual Vector Search ✅
+### Day 02 - Vector Search
 
-Topics Learned:
+Topics Covered:
 
-* Retrieval
-* Semantic Search
-* Query Embeddings
-* Document Embeddings
-* Similarity Ranking
-* Manual Vector Search
+* Vector Search
+* Similarity Search
+* Top-K Retrieval
 
 Files:
-
-Day-02-Vector-Search/
 
 * vector_search.py
-* notes.md
 
 ---
 
-### Day 3 - ChromaDB and Vector Databases ✅
+### Day 03 - ChromaDB
 
-Topics Learned:
+Topics Covered:
 
-* Vector Databases
-* ChromaDB
+* ChromaDB Basics
 * Collections
-* add()
-* query()
-* User Query Input
+* Documents
 * Similarity Search
-* Automatic Embedding Generation
 
 Files:
-
-Day-03-ChromaDB/
 
 * chromadb_demo.py
 * chromadb_user_query.py
-* notes.md
 
 ---
 
-## Upcoming Topics
+### Day 04 - Qdrant
 
-### Day 4
+Topics Covered:
 
-* FAISS
-* Indexing
-* Approximate Nearest Neighbors
-* Fast Retrieval
+* Collections
+* Points
+* Payloads
+* VectorParams
+* Upsert
+* Query Points
+* Top-K Retrieval
 
-### Day 5
+Files:
 
-* Build RAG From Scratch
-
-### Day 6
-
-* Multi-Document Retrieval
-
-### Day 7
-
-* LangChain Integration
+* qdrant_demo.py
 
 ---
 
-## Repository Structure
+### Day 05 - RAG Foundations
 
-RAG/
+Topics Covered:
 
-├── README.md
-├── .gitignore
+* What is RAG
+* RAG vs Fine-Tuning
+* RAG vs Prompt Engineering
+* Dense vs Sparse Retrieval
+* Context Window
+* Hallucinations
+* Precision
+* Recall
+* Retrieval Quality
 
-├── day1-embeddings
+Files:
 
-├── Day-02-Vector-Search
-
-├── Day-03-ChromaDB
-
-├── Day-04-FAISS
-
-├── Day-05-RAG-From-Scratch
-
-└── Interview-Notes
+* retrieval_quality_demo.py
 
 ---
 
-## Objective
+### LangChain Fundamentals
 
-Build a complete understanding of Retrieval-Augmented Generation by implementing every component manually before using higher-level frameworks.
+Topics Covered:
+
+* Document
+* PyPDFLoader
+* RecursiveCharacterTextSplitter
+* HuggingFaceEmbeddings
+* Qdrant Vector Store
+* Retriever
+
+Files:
+
+* langchain_document_basics.py
+* langchain_pdf_loader.py
+* langchain_text_splitter.py
+* langchain_embeddings.py
+* langchain_qdrant_retriever.py
+* langchain_complete_rag_pipeline.py
+
+---
+
+## Status
+
+✅ Preliminary Foundation Completed
+
+🚀 Next Phase: Internship Day 1 - RAG Foundations & Architecture
+
+Topics:
+
+* End-to-End RAG Pipeline
+* Index → Retrieve → Augment → Generate
+* Build a Naive RAG System
+* Qdrant + LangChain Integration
+* Real PDF Knowledge Base
+* Retrieval Evaluation
+* Lewis et al. (2020) RAG Paper

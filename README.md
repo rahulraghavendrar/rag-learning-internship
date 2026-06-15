@@ -29,67 +29,243 @@ Topics Covered:
 
 ## ✅ Day 01 Completed - RAG Foundations & Architecture
 
-Topics Covered:
+### Topics Covered
 
 * What is RAG?
+
 * Why Not Fine-Tuning?
+
 * RAG vs Fine-Tuning vs Prompt Engineering
+
 * Core RAG Pipeline
 
   * Index
   * Retrieve
   * Augment
   * Generate
+
 * Vector Databases
+
 * Embedding Models
+
 * Similarity Search
+
 * Indexing
+
 * Real World RAG Applications
+
 * Lewis et al. (2020) RAG Paper Overview
-
-### Lab 1
-
-Built a Naive RAG Pipeline
-
-Components:
-
-* PDF Loader
-* Chunking
-* Embeddings
-* Qdrant
-* Retriever
-
-Deliverable:
-
-* Working Retrieval System
-* Multi-PDF Search
-* Semantic Retrieval
 
 ---
 
-## 🚀 Next: Day 02 - Chunking Strategies & Text Processing
+### Lab 1 - Naive RAG Pipeline
 
-Topics:
+Built a complete Naive RAG System.
 
-* Why Chunking Matters
-* Context Windows
-* Retrieval Relevance
-* Latency Tradeoffs
-* Fixed-Size Chunking
-* Semantic Chunking
-* Recursive Chunking
-* Sliding Window Chunking
-* Structure-Aware Chunking
+Components:
 
-### Lab 2
-
-Compare Multiple Chunking Strategies
+* PyPDFLoader
+* Chunking
+* HuggingFace Embeddings
+* Qdrant Vector Database
+* Retriever
 
 Deliverables:
 
-* Chunk Coherence Analysis
+* Multi-PDF Search
+* Semantic Retrieval
+* Top-K Retrieval
+* Chunk ID Tracking
+* Chunk Deletion Support
+
+---
+
+## ✅ Day 02 Completed - Chunking Strategies & Text Processing
+
+### Topics Covered
+
+#### Chunking Fundamentals
+
+* What is Chunking?
+* Why Chunking Matters
+* Context Window
+* Relevance
+* Latency
+* Chunk Coherence
+
+---
+
+### Fixed Size Chunking
+
+Concepts:
+
+* Character-Based Splitting
+* Chunk Size Selection
+* Tradeoffs
+
+Pros:
+
+* Simple
+* Fast
+
+Cons:
+
+* Semantic Breaks
+* Context Loss
+
+---
+
+### Recursive Chunking
+
+Concepts:
+
+* Hierarchical Splitting
+
+```text
+Paragraph
+↓
+Sentence
+↓
+Word
+↓
+Character
+```
+
+Libraries:
+
+* RecursiveCharacterTextSplitter
+
+Applications:
+
+* PDFs
+* Documentation
+* Production RAG Systems
+
+---
+
+### Sliding Window Chunking
+
+Concepts:
+
+* Overlapping Chunks
+* Context Preservation
+* chunk_overlap
+
+Applications:
+
+* Question Answering
+* Long PDFs
+* Customer Support Systems
+
+---
+
+### Structure-Aware Chunking
+
+Concepts:
+
+* Headers
+* Sections
+* Tables
+* Code Blocks
+
+Libraries:
+
+* HTMLHeaderTextSplitter
+* Unstructured
+
+Applications:
+
+* PDFs
+* Research Papers
+* Documentation
+* Company Policies
+
+---
+
+### Semantic Chunking
+
+Concepts:
+
+* Meaning-Based Splitting
+* Embeddings
+* Similarity Scores
+* Topic-Based Chunks
+
+Libraries:
+
+* SemanticChunker
+* SentenceTransformers
+
+Applications:
+
+* High Accuracy Retrieval
+* Advanced RAG Systems
+
+---
+
+### Chunking Strategy Comparison
+
+Compared:
+
+* Fixed Size Chunking
+* Recursive Chunking
+* Sliding Window Chunking
+* Structure-Aware Chunking
+* Semantic Chunking
+
+Studied:
+
+* Chunk Coherence
+* Retrieval Quality
+* Retrieval Accuracy
+* Chunking Tradeoffs
+
+---
+
+### Lab 2 - Chunking Strategy Evaluation
+
+Built a complete chunking comparison system.
+
+Pipeline:
+
+```text
+PDFs
+↓
+Chunking Strategy
+↓
+Embeddings
+↓
+Qdrant
+↓
+Retriever
+↓
+Questions
+↓
+Retrieved Chunks
+↓
+Accuracy Evaluation
+```
+
+Strategies Compared:
+
+* Recursive Chunking
+* Sliding Window Chunking
+* Semantic Chunking
+
+Evaluation Method:
+
+* Keyword Matching Accuracy
+
+Important Functions:
+
+* evaluate_strategy()
+* retriever.invoke()
+
+Deliverables:
+
 * Retrieval Quality Comparison
-* Retrieval Accuracy Evaluation
+* Retrieval Accuracy Comparison
+* Chunking Evaluation Framework
 
 ---
 
@@ -99,10 +275,103 @@ Deliverables:
 
 ✅ Day 01 - RAG Foundations & Architecture
 
-⬜ Day 02 - Chunking Strategies & Text Processing
+✅ Day 02 - Chunking Strategies & Text Processing
 
 ⬜ Day 03 - Advanced Retrieval & Reranking
 
 ⬜ Day 04 - RAG Evaluation & Metrics
 
 ⬜ Day 05 - Advanced RAG Architectures & Capstone Project
+
+---
+
+## Upcoming Topics
+
+### Day 03 - Advanced Retrieval & Reranking
+
+Topics:
+
+* BM25 Retrieval
+* Dense Retrieval
+* Hybrid Search
+* Query Expansion
+* Query Rewriting
+* Metadata Filtering
+* Structured Retrieval
+* Reranking Models
+
+  * Bi-Encoders
+  * Cross-Encoders
+
+Labs:
+
+* Lab 3 - Hybrid Retrieval (BM25 + Dense Search)
+* Lab 4 - Reranking Pipeline
+
+Metrics:
+
+* Recall@K
+* MRR
+* NDCG
+
+---
+
+### Day 04 - RAG Evaluation & Metrics
+
+Topics:
+
+* Precision
+* Recall
+* MRR
+* NDCG
+* BLEU
+* ROUGE
+* BERTScore
+* Faithfulness
+* Relevance
+* Consistency
+
+Tools:
+
+* RAGAS
+* TruLens
+* Langfuse
+
+Lab:
+
+* Evaluation Pipeline
+
+---
+
+### Day 05 - Advanced RAG Architectures & Capstone
+
+Topics:
+
+* Naive RAG
+* Advanced RAG
+* Hybrid RAG
+* Agentic RAG
+* Graph RAG
+* Multi-Modal RAG
+
+Capstone:
+
+* End-to-End Production RAG System
+* Hybrid Retrieval
+* Reranking
+* Evaluation
+* FastAPI Deployment
+* Qdrant Integration
+
+---
+
+## Current Status
+
+```text
+Foundation        ✅ Completed
+Day 01            ✅ Completed
+Day 02            ✅ Completed
+Day 03            ⏳ Next
+Day 04            ⬜ Pending
+Day 05            ⬜ Pending
+```

@@ -703,16 +703,1453 @@ Completed:
 
 ✅ LangChain Splitter Basics
 
-Next:
+# Sliding Window Chunking Deep Dive
 
-➡ Sliding Window Chunking Deep Dive
+## Problem Sliding Window Solves
 
-➡ Structure-Aware Chunking
+Suppose a document contains:
 
-➡ Semantic Chunking Deep Dive
+```text
+Sentence 1:
+Internship duration is 2 months.
 
-➡ Chunking Evaluation
+Sentence 2:
+Interns receive a stipend of 15000 rupees.
 
-➡ Retrieval Accuracy Comparison
+Sentence 3:
+Payment is made monthly.
 
-➡ Lab 2
+Sentence 4:
+Certificates are issued after completion.
+```
+
+If normal chunking is used:
+
+### Chunk 1
+
+```text
+Sentence 1
+
+Sentence 2
+```
+
+### Chunk 2
+
+```text
+Sentence 3
+
+Sentence 4
+```
+
+Question:
+
+```text
+How is the stipend paid?
+```
+
+The information is split across chunks.
+
+Chunk 1 contains:
+
+```text
+Stipend Information
+```
+
+Chunk 2 contains:
+
+```text
+Payment Information
+```
+
+The retriever may not retrieve both chunks.
+
+---
+
+## How Sliding Window Chunking Works
+
+Sliding Window Chunking introduces overlap between chunks.
+
+Instead of:
+
+```text
+Chunk 1
+
+A
+B
+C
+
+Chunk 2
+
+D
+E
+F
+```
+
+It creates:
+
+```text
+Chunk 1
+
+A
+B
+C
+
+Chunk 2
+
+B
+C
+D
+
+Chunk 3
+
+C
+D
+E
+
+Chunk 4
+
+D
+E
+F
+```
+
+Notice:
+
+```text
+B
+C
+```
+
+appear in both Chunk 1 and Chunk 2.
+
+This repeated information is called:
+
+```text
+Overlap
+```
+
+---
+
+## Why Overlap Matters
+
+Without overlap:
+
+```text
+Important Information
+↓
+Split Between Chunks
+↓
+Lost Context
+```
+
+With overlap:
+
+```text
+Important Information
+↓
+Appears In Multiple Chunks
+↓
+Better Retrieval
+```
+
+This improves question answering quality.
+
+---
+
+## Real World Example
+
+Chunk 1:
+
+```text
+Interns receive a stipend of 15000 rupees.
+```
+
+Chunk 2:
+
+```text
+Payment is made monthly.
+```
+
+Question:
+
+```text
+How is the stipend paid?
+```
+
+Without overlap:
+
+```text
+Retriever May Return Only Chunk 1
+```
+
+Answer becomes incomplete.
+
+With overlap:
+
+```text
+Interns receive a stipend of 15000 rupees.
+
+Payment is made monthly.
+```
+
+Both pieces of information stay together.
+
+---
+
+## Advantages
+
+✅ Better context preservation
+
+✅ Better retrieval quality
+
+✅ Better question answering
+
+✅ Handles chunk boundaries effectively
+
+---
+
+## Disadvantages
+
+❌ More chunks generated
+
+❌ Increased storage requirements
+
+❌ More embeddings
+
+❌ Slower indexing
+
+---
+
+## Sliding Window vs Recursive Chunking
+
+| Feature               | Recursive | Sliding Window |
+| --------------------- | --------- | -------------- |
+| Preserves Structure   | ✅         | ❌              |
+| Preserves Context     | Good      | Excellent      |
+| Storage Cost          | Lower     | Higher         |
+| Duplicate Information | No        | Yes            |
+| Retrieval Quality     | High      | Very High      |
+
+---
+
+## LangChain Implementation
+
+LangChain does not provide a separate Sliding Window Splitter.
+
+Instead:
+
+```python
+RecursiveCharacterTextSplitter
+```
+
+acts as a sliding window splitter when:
+
+```python
+chunk_overlap > 0
+```
+
+Example:
+
+```python
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+splitter = RecursiveCharacterTextSplitter(
+    chunk_size=80,
+    chunk_overlap=30
+)
+```
+
+---
+
+## Sliding Window Example
+
+File:
+
+```text
+sliding_window_demo.py
+```
+
+```python
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+text = """
+Internship duration is 2 months.
+
+Interns receive a stipend of 15000 rupees.
+
+Payment is made monthly.
+
+Certificates are issued after completion.
+"""
+
+splitter = RecursiveCharacterTextSplitter(
+    chunk_size=80,
+    chunk_overlap=30
+)
+
+chunks = splitter.split_text(text)
+
+for i, chunk in enumerate(chunks):
+
+    print(f"\nChunk {i+1}")
+
+    print(chunk)
+
+    print("-"*50)
+```
+
+---
+
+## Understanding chunk_overlap
+
+Example:
+
+```python
+chunk_size=100
+chunk_overlap=20
+```
+
+Chunk 1:
+
+```text
+Characters 1 → 100
+```
+
+Chunk 2:
+
+```text
+Characters 81 → 180
+```
+
+Characters:
+
+```text
+81 → 100
+```
+
+appear in both chunks.
+
+This preserves context between adjacent chunks.
+
+---
+
+## Sliding Window + PDF Workflow
+
+```text
+PDF
+↓
+PyPDFLoader
+↓
+RecursiveCharacterTextSplitter
+(chunk_overlap > 0)
+↓
+Chunks
+↓
+Embeddings
+↓
+Qdrant
+↓
+Retriever
+↓
+Top Matching Chunks
+```
+
+---
+
+## Sliding Window + Qdrant Workflow
+
+```text
+PDF
+↓
+Sliding Window Chunking
+↓
+Chunks
+↓
+Embeddings
+↓
+Qdrant
+↓
+Semantic Search
+↓
+Top-K Chunks
+```
+
+The retrieval pipeline remains the same as Day 1.
+
+Only the chunking strategy changes.
+
+---
+
+## When Should Sliding Window Be Used?
+
+Best For:
+
+✅ Question Answering Systems
+
+✅ Customer Support Chatbots
+
+✅ Long PDF Retrieval
+
+✅ RAG Applications
+
+Avoid When:
+
+❌ Storage is limited
+
+❌ Indexing speed is critical
+
+❌ Duplicate chunks are undesirable
+
+---
+
+## Key Takeaways
+
+1. Sliding Window Chunking introduces overlap between chunks.
+
+2. Overlap helps preserve context near chunk boundaries.
+
+3. Better context usually leads to better retrieval quality.
+
+4. The tradeoff is additional storage and indexing cost.
+
+5. In LangChain, Sliding Window Chunking is implemented using:
+
+```python
+RecursiveCharacterTextSplitter(
+    chunk_overlap > 0
+)
+```
+
+6. Sliding Window Chunking is one of the most common strategies used in production RAG systems.
+
+# Structure-Aware Chunking Deep Dive
+
+## What is Structure-Aware Chunking?
+
+Structure-Aware Chunking splits documents based on their logical structure rather than character counts.
+
+Instead of using:
+
+```text
+Character Count
+Paragraph Length
+Sentence Length
+```
+
+it uses:
+
+```text
+Headings
+Subheadings
+Tables
+Lists
+Code Blocks
+Sections
+```
+
+to create chunks.
+
+---
+
+# Why Do We Need Structure-Aware Chunking?
+
+Consider a company policy PDF:
+
+```text
+Internship Policy
+
+Duration
+
+The internship lasts 2 months.
+
+Stipend
+
+Interns receive 15000 rupees.
+
+Certification
+
+Certificates are issued after completion.
+```
+
+A normal splitter may create:
+
+```text
+Chunk 1
+
+Internship Policy
+
+Duration
+
+The internship lasts 2 months.
+
+Stipend
+```
+
+```text
+Chunk 2
+
+Interns receive 15000 rupees.
+
+Certification
+
+Certificates are issued.
+```
+
+The topic "Stipend" gets separated from its content.
+
+---
+
+# Structure-Aware Chunking Output
+
+Instead:
+
+### Chunk 1
+
+```text
+Duration
+
+The internship lasts 2 months.
+```
+
+### Chunk 2
+
+```text
+Stipend
+
+Interns receive 15000 rupees.
+```
+
+### Chunk 3
+
+```text
+Certification
+
+Certificates are issued after completion.
+```
+
+Now each chunk represents one complete topic.
+
+---
+
+# Why Is This Better?
+
+The embedding becomes focused.
+
+Example:
+
+```text
+Stipend
+
+Interns receive 15000 rupees.
+```
+
+Embedding Meaning:
+
+```text
+Stipend Topic
+```
+
+Instead of:
+
+```text
+Duration
++
+Stipend
++
+Certification
+```
+
+inside a single embedding.
+
+This improves:
+
+✅ Chunk Coherence
+
+✅ Retrieval Quality
+
+✅ Question Answering Accuracy
+
+---
+
+# Real World Use Cases
+
+Structure-Aware Chunking is commonly used for:
+
+### Documentation
+
+```text
+Installation
+
+Configuration
+
+Deployment
+```
+
+---
+
+### Research Papers
+
+```text
+Abstract
+
+Methodology
+
+Results
+
+Conclusion
+```
+
+---
+
+### Company Policies
+
+```text
+Attendance Policy
+
+Leave Policy
+
+Dress Code
+```
+
+---
+
+### Technical Documentation
+
+```text
+API Reference
+
+Authentication
+
+Endpoints
+
+Examples
+```
+
+---
+
+# Built-In Approaches
+
+## HTMLHeaderTextSplitter
+
+Used for HTML documents.
+
+Library:
+
+```python
+from langchain_text_splitters import HTMLHeaderTextSplitter
+```
+
+Splits using:
+
+```html
+<h1>
+<h2>
+<h3>
+```
+
+tags.
+
+---
+
+### Example
+
+```python
+from langchain_text_splitters import HTMLHeaderTextSplitter
+
+headers = [
+    ("h1","Main Header"),
+    ("h2","Section Header")
+]
+
+splitter = HTMLHeaderTextSplitter(
+    headers_to_split_on=headers
+)
+```
+
+---
+
+### Workflow
+
+```text
+HTML
+↓
+Headers
+↓
+Chunks
+↓
+Embeddings
+↓
+Vector Database
+```
+
+---
+
+# Can HTMLHeaderTextSplitter Split PDFs?
+
+No.
+
+Reason:
+
+```text
+PDF
+```
+
+does not contain:
+
+```html
+<h1>
+<h2>
+<h3>
+```
+
+tags.
+
+It only works on HTML documents.
+
+---
+
+# Unstructured Library
+
+For PDFs, the most common production solution is:
+
+```python
+from unstructured.partition.pdf import partition_pdf
+```
+
+---
+
+## What Does Unstructured Do?
+
+It understands document elements such as:
+
+```text
+Title
+
+NarrativeText
+
+Table
+
+List
+
+Header
+
+Footer
+```
+
+instead of treating everything as plain text.
+
+---
+
+# Example
+
+```python
+from unstructured.partition.pdf import partition_pdf
+
+elements = partition_pdf(
+    filename="internship.pdf"
+)
+```
+
+Output:
+
+```text
+Title
+
+Internship Program
+```
+
+```text
+Title
+
+Duration
+```
+
+```text
+NarrativeText
+
+The internship lasts 2 months.
+```
+
+```text
+Title
+
+Stipend
+```
+
+```text
+NarrativeText
+
+Interns receive 15000 rupees.
+```
+
+---
+
+# Why Unstructured Is Important
+
+Compared to:
+
+### Fixed Size Chunking
+
+```text
+Split By Character Count
+```
+
+### Recursive Chunking
+
+```text
+Split By Paragraphs
+Sentences
+Words
+```
+
+### Sliding Window Chunking
+
+```text
+Split With Overlap
+```
+
+Unstructured performs:
+
+```text
+Document Understanding
+```
+
+before chunk creation.
+
+---
+
+# Structure-Aware RAG Pipeline
+
+```text
+PDF
+↓
+Unstructured
+↓
+Title
+Paragraph
+Table
+Code
+↓
+Chunks
+↓
+Embeddings
+↓
+Qdrant
+↓
+Retriever
+↓
+Top-K Results
+```
+
+---
+
+# Libraries Used
+
+## partition_pdf
+
+```python
+from unstructured.partition.pdf import partition_pdf
+```
+
+Purpose:
+
+```text
+PDF
+↓
+Structured Elements
+```
+
+---
+
+## HTMLHeaderTextSplitter
+
+```python
+from langchain_text_splitters import HTMLHeaderTextSplitter
+```
+
+Purpose:
+
+```text
+HTML
+↓
+Header-Based Chunks
+```
+
+---
+
+# Functions Used
+
+## partition_pdf()
+
+```python
+elements = partition_pdf(
+    filename="internship.pdf"
+)
+```
+
+Input:
+
+```text
+PDF
+```
+
+Output:
+
+```python
+[
+ Title,
+ NarrativeText,
+ Table,
+ ListItem
+]
+```
+
+---
+
+## HTMLHeaderTextSplitter()
+
+```python
+splitter = HTMLHeaderTextSplitter(
+    headers_to_split_on=headers
+)
+```
+
+Creates a splitter that uses HTML headers.
+
+---
+
+## split_text()
+
+```python
+documents = splitter.split_text(html_text)
+```
+
+Input:
+
+```text
+HTML
+```
+
+Output:
+
+```python
+[
+ Document(...),
+ Document(...)
+]
+```
+
+---
+
+# Advantages
+
+✅ Excellent Chunk Coherence
+
+✅ Preserves Document Meaning
+
+✅ Better Retrieval Quality
+
+✅ Works Very Well For PDFs
+
+✅ Common In Production RAG Systems
+
+---
+
+# Disadvantages
+
+❌ More Complex
+
+❌ Requires Document Parsing
+
+❌ Slower Than Fixed Size Chunking
+
+❌ Some PDFs Have Poor Structure
+
+---
+
+# Key Takeaways
+
+1. Structure-Aware Chunking uses document structure instead of character counts.
+
+2. HTMLHeaderTextSplitter is used for HTML documents.
+
+3. HTMLHeaderTextSplitter cannot directly process PDFs.
+
+4. Unstructured is the most common solution for PDF Structure-Aware Chunking.
+
+5. Structure-Aware Chunking usually produces highly coherent chunks.
+
+6. Better chunk coherence generally leads to better retrieval quality.
+
+7. This is one of the most commonly used chunking strategies in production RAG systems.
+
+# Semantic Chunking Deep Dive
+
+## What is Semantic Chunking?
+
+Semantic Chunking splits text based on meaning rather than character count, document structure, or overlap.
+
+Instead of asking:
+
+```text
+How many characters are present?
+```
+
+it asks:
+
+```text
+Do these sentences talk about the same topic?
+```
+
+If the meaning is similar:
+
+```text
+Same Chunk
+```
+
+If the meaning changes:
+
+```text
+Create New Chunk
+```
+
+---
+
+# Why Do We Need Semantic Chunking?
+
+Consider the following document:
+
+```text
+Internship duration is 2 months.
+
+Interns receive a stipend of 15000 rupees.
+
+Mentors conduct weekly reviews.
+
+Qdrant is a vector database.
+
+Embeddings convert text into vectors.
+
+Cosine similarity measures semantic similarity.
+```
+
+---
+
+## Fixed Size Chunking Might Produce
+
+```text
+Chunk 1
+
+Internship duration is 2 months.
+
+Interns receive a stipend.
+```
+
+```text
+Chunk 2
+
+Mentors conduct reviews.
+
+Qdrant is a vector database.
+```
+
+```text
+Chunk 3
+
+Embeddings convert text into vectors.
+```
+
+Notice:
+
+```text
+Chunk 2
+```
+
+contains:
+
+```text
+Internship Topic
++
+Vector Database Topic
+```
+
+Result:
+
+❌ Low Coherence
+
+---
+
+## Semantic Chunking Produces
+
+```text
+Chunk 1
+
+Internship duration is 2 months.
+
+Interns receive a stipend.
+
+Mentors conduct weekly reviews.
+```
+
+```text
+Chunk 2
+
+Qdrant is a vector database.
+
+Embeddings convert text into vectors.
+
+Cosine similarity measures semantic similarity.
+```
+
+Result:
+
+✅ High Coherence
+
+---
+
+# How Semantic Chunking Works
+
+## Step 1
+
+Split the document into sentences.
+
+```text
+Sentence 1
+
+Sentence 2
+
+Sentence 3
+```
+
+---
+
+## Step 2
+
+Generate embeddings.
+
+```text
+Sentence
+↓
+Embedding
+```
+
+Example:
+
+```python
+embedding = model.encode(sentence)
+```
+
+---
+
+## Step 3
+
+Compare sentence similarity.
+
+```text
+Sentence A
+↔
+Sentence B
+↓
+Cosine Similarity
+```
+
+---
+
+## Step 4
+
+Decision
+
+If similarity is high:
+
+```text
+Same Chunk
+```
+
+If similarity is low:
+
+```text
+New Chunk
+```
+
+---
+
+# Semantic Chunking Workflow
+
+```text
+Document
+↓
+Sentence Split
+↓
+Embeddings
+↓
+Cosine Similarity
+↓
+Group Similar Sentences
+↓
+Chunks
+```
+
+---
+
+# Why Semantic Chunking Is Powerful
+
+Unlike Fixed Size Chunking:
+
+```text
+Split Every 500 Characters
+```
+
+Semantic Chunking asks:
+
+```text
+Do These Sentences Mean Similar Things?
+```
+
+This usually creates:
+
+✅ Better Chunks
+
+✅ Better Retrieval
+
+✅ Better Answers
+
+---
+
+# LangChain SemanticChunker
+
+LangChain provides a built-in semantic chunker.
+
+Library:
+
+```python
+from langchain_experimental.text_splitter import SemanticChunker
+```
+
+Purpose:
+
+```text
+Document
+↓
+Embeddings
+↓
+Semantic Similarity
+↓
+Topic-Based Chunks
+```
+
+---
+
+# Example
+
+```python
+from langchain_experimental.text_splitter import SemanticChunker
+
+semantic_splitter = SemanticChunker(
+    embeddings=embedding_model
+)
+
+chunks = semantic_splitter.split_documents(
+    documents
+)
+```
+
+---
+
+# Semantic Chunking + PDF Workflow
+
+```text
+PDF
+↓
+PyPDFLoader
+↓
+SemanticChunker
+↓
+Semantic Chunks
+↓
+Embeddings
+↓
+Qdrant
+↓
+Retriever
+```
+
+---
+
+# Semantic Chunking + Qdrant Workflow
+
+```text
+PDF
+↓
+Semantic Chunking
+↓
+Chunks
+↓
+Embeddings
+↓
+Qdrant
+↓
+Top-K Retrieval
+```
+
+The retrieval pipeline remains identical.
+
+Only chunk creation changes.
+
+---
+
+# Libraries Used
+
+## SemanticChunker
+
+```python
+from langchain_experimental.text_splitter import SemanticChunker
+```
+
+Purpose:
+
+```text
+Meaning-Based Chunking
+```
+
+---
+
+## HuggingFaceEmbeddings
+
+```python
+from langchain_huggingface import HuggingFaceEmbeddings
+```
+
+Purpose:
+
+```text
+Text
+↓
+Embedding
+```
+
+Used internally by SemanticChunker.
+
+---
+
+# Functions Used
+
+## SemanticChunker()
+
+```python
+semantic_splitter = SemanticChunker(
+    embeddings=embedding_model
+)
+```
+
+Creates the semantic splitter.
+
+---
+
+## split_documents()
+
+```python
+chunks = semantic_splitter.split_documents(
+    documents
+)
+```
+
+Input:
+
+```python
+[
+ Document(...),
+ Document(...)
+]
+```
+
+Output:
+
+```python
+[
+ Chunk1,
+ Chunk2,
+ Chunk3
+]
+```
+
+---
+
+# Comparison of Chunking Strategies
+
+| Strategy        | Splits By                   | Retrieval Quality |
+| --------------- | --------------------------- | ----------------- |
+| Fixed Size      | Character Count             | Medium            |
+| Recursive       | Paragraph → Sentence → Word | High              |
+| Sliding Window  | Overlap                     | High              |
+| Structure-Aware | Headers / Sections          | High              |
+| Semantic        | Meaning                     | Very High         |
+
+---
+
+# Advantages
+
+✅ Excellent Chunk Coherence
+
+✅ Excellent Retrieval Quality
+
+✅ Topic-Based Chunks
+
+✅ Better Question Answering
+
+✅ Works Very Well For RAG
+
+---
+
+# Disadvantages
+
+❌ Slower Than Fixed Size Chunking
+
+❌ Requires Embedding Generation
+
+❌ More Expensive
+
+❌ More Complex
+
+---
+
+# Interview Questions
+
+### What is Semantic Chunking?
+
+Semantic Chunking splits text based on meaning using embeddings and similarity scores instead of character counts.
+
+---
+
+### Why is Semantic Chunking useful?
+
+Because it creates highly coherent chunks that usually improve retrieval quality and question-answering performance.
+
+---
+
+### Does LangChain support Semantic Chunking?
+
+Yes.
+
+LangChain provides:
+
+```python
+from langchain_experimental.text_splitter import SemanticChunker
+```
+
+for built-in semantic chunking.
+
+---
+
+# Key Takeaways
+
+1. Semantic Chunking groups sentences based on meaning.
+
+2. It uses embeddings and similarity scores.
+
+3. LangChain provides SemanticChunker for semantic chunking.
+
+4. Semantic Chunking usually produces the highest chunk coherence.
+
+5. Higher chunk coherence often leads to better retrieval quality.
+
+6. Semantic Chunking is one of the most powerful chunking strategies used in modern RAG systems.

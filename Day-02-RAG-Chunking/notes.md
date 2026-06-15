@@ -2153,3 +2153,573 @@ for built-in semantic chunking.
 5. Higher chunk coherence often leads to better retrieval quality.
 
 6. Semantic Chunking is one of the most powerful chunking strategies used in modern RAG systems.
+
+# Lab 2 - Comparing Chunking Strategies
+
+## Goal
+
+Compare different chunking strategies on the same dataset and measure retrieval quality.
+
+The purpose of this lab is not to determine which chunking strategy creates the fewest chunks or the largest chunks.
+
+The purpose is to determine:
+
+```text
+Which chunking strategy retrieves the most relevant information?
+```
+
+---
+
+# Objective
+
+Compare:
+
+1. Recursive Chunking
+2. Sliding Window Chunking
+3. Semantic Chunking
+
+using:
+
+* Same PDFs
+* Same Embedding Model
+* Same Vector Database
+* Same Questions
+
+This ensures a fair comparison.
+
+---
+
+# Dataset
+
+The dataset consists of:
+
+```text
+internship.pdf
+
+company_policy.pdf
+
+employee_handbook.pdf
+
+training_program.pdf
+
+ai_projects.pdf
+```
+
+All chunking strategies use the exact same documents.
+
+---
+
+# Evaluation Pipeline
+
+```text
+PDFs
+↓
+Chunking Strategy
+↓
+Chunks
+↓
+Embeddings
+↓
+Qdrant
+↓
+Retriever
+↓
+Questions
+↓
+Retrieved Chunks
+↓
+Evaluation
+↓
+Accuracy Score
+```
+
+---
+
+# Chunking Strategies Tested
+
+## Recursive Chunking
+
+Uses:
+
+```python
+RecursiveCharacterTextSplitter
+```
+
+Splits hierarchically:
+
+```text
+Paragraph
+↓
+Sentence
+↓
+Word
+↓
+Character
+```
+
+---
+
+## Sliding Window Chunking
+
+Uses:
+
+```python
+RecursiveCharacterTextSplitter
+```
+
+with:
+
+```python
+chunk_overlap > 0
+```
+
+Creates overlapping chunks.
+
+Purpose:
+
+```text
+Preserve Context
+```
+
+---
+
+## Semantic Chunking
+
+Uses:
+
+```python
+SemanticChunker
+```
+
+Splits based on:
+
+```text
+Meaning
+```
+
+instead of:
+
+```text
+Character Count
+```
+
+---
+
+# Questions Used
+
+Example:
+
+```python
+questions = [
+
+("How long is the internship?",
+ "2 months"),
+
+("What stipend do interns receive?",
+ "15000"),
+
+("How are mentors assigned?",
+ "mentor"),
+
+("How many training modules exist?",
+ "module"),
+
+("What AI projects are available?",
+ "project")
+]
+```
+
+Each question contains:
+
+```text
+Question
++
+Expected Keyword
+```
+
+---
+
+# How Retrieval Is Evaluated
+
+Question:
+
+```text
+What stipend do interns receive?
+```
+
+Expected Keyword:
+
+```text
+15000
+```
+
+Retrieved Chunk:
+
+```text
+Interns receive a stipend of 15000 rupees.
+```
+
+Result:
+
+```text
+Correct Retrieval
+```
+
+Score:
+
+```text
+1
+```
+
+---
+
+Question:
+
+```text
+What stipend do interns receive?
+```
+
+Retrieved Chunk:
+
+```text
+Internship duration is 2 months.
+```
+
+Result:
+
+```text
+Incorrect Retrieval
+```
+
+Score:
+
+```text
+0
+```
+
+---
+
+# Comparison Function
+
+The main comparison function is:
+
+```python
+evaluate_strategy()
+```
+
+Purpose:
+
+```text
+Chunking Strategy
+↓
+Store In Qdrant
+↓
+Ask Questions
+↓
+Retrieve Chunks
+↓
+Calculate Accuracy
+```
+
+---
+
+# Important Functions Used
+
+## PyPDFLoader()
+
+```python
+loader = PyPDFLoader(pdf)
+```
+
+Purpose:
+
+```text
+PDF
+↓
+Documents
+```
+
+---
+
+## RecursiveCharacterTextSplitter()
+
+```python
+RecursiveCharacterTextSplitter()
+```
+
+Purpose:
+
+```text
+Text
+↓
+Recursive Chunks
+```
+
+---
+
+## SemanticChunker()
+
+```python
+SemanticChunker()
+```
+
+Purpose:
+
+```text
+Text
+↓
+Meaning-Based Chunks
+```
+
+---
+
+## add_documents()
+
+```python
+vectorstore.add_documents()
+```
+
+Purpose:
+
+```text
+Chunks
+↓
+Embeddings
+↓
+Qdrant
+```
+
+Stores chunks in the vector database.
+
+---
+
+## as_retriever()
+
+```python
+vectorstore.as_retriever()
+```
+
+Creates a retriever object.
+
+---
+
+## retriever.invoke()
+
+```python
+retriever.invoke(question)
+```
+
+Purpose:
+
+```text
+Question
+↓
+Similarity Search
+↓
+Top-K Chunks
+```
+
+This is the actual retrieval function used in the comparison.
+
+---
+
+# Accuracy Formula
+
+```text
+Accuracy
+
+=
+
+Correct Retrievals
+------------------
+Total Questions
+
+× 100
+```
+
+Example:
+
+```text
+5 Questions
+
+4 Correct
+```
+
+Accuracy:
+
+```text
+80%
+```
+
+---
+
+# Example Results
+
+```text
+Recursive Chunking
+
+Accuracy = 80%
+```
+
+```text
+Sliding Window Chunking
+
+Accuracy = 100%
+```
+
+```text
+Semantic Chunking
+
+Accuracy = 100%
+```
+
+---
+
+# What Is Actually Being Compared?
+
+We are comparing:
+
+```text
+Retrieval Quality
+```
+
+NOT:
+
+```text
+Number Of Chunks
+```
+
+NOT:
+
+```text
+Chunk Size
+```
+
+NOT:
+
+```text
+LLM Answer Quality
+```
+
+The only thing being measured is:
+
+```text
+Did the retriever find the correct chunk?
+```
+
+---
+
+# Why This Lab Is Important
+
+Chunking is one of the biggest factors affecting RAG performance.
+
+Better chunking usually leads to:
+
+✅ Better Chunk Coherence
+
+✅ Better Retrieval
+
+✅ Better Context
+
+✅ Better Answers
+
+---
+
+# Limitations Of This Lab
+
+This lab uses:
+
+```text
+Keyword Matching
+```
+
+to determine correctness.
+
+Example:
+
+```python
+if keyword in retrieved_text
+```
+
+This is simple but not perfect.
+
+---
+
+# Professional Retrieval Metrics
+
+Real production RAG systems use:
+
+## Recall@K
+
+Measures:
+
+```text
+Was the correct chunk present
+in the top K results?
+```
+
+---
+
+## Precision@K
+
+Measures:
+
+```text
+How many retrieved chunks
+were actually relevant?
+```
+
+---
+
+## MRR
+
+Mean Reciprocal Rank
+
+Measures:
+
+```text
+How high the correct chunk
+appears in the ranking.
+```
+
+---
+
+## NDCG
+
+Measures:
+
+```text
+Ranking Quality
+```
+
+for multiple relevant documents.
+
+---
+
+# Key Takeaways
+
+1. Chunking quality directly affects retrieval quality.
+
+2. Recursive, Sliding Window, and Semantic Chunking can be compared fairly using the same dataset.
+
+3. Retrieval quality is measured by checking whether the correct information is retrieved.
+
+4. The comparison function used in this lab is:
+
+```python
+evaluate_strategy()
+```
+
+5. The retrieval function used in this lab is:
+
+```python
+retriever.invoke()
+```
+
+6. Accuracy is calculated using:
+
+```text
+Correct Retrievals / Total Questions
+```
+
+7. Professional RAG systems use Recall@K, Precision@K, MRR, and NDCG instead of simple keyword matching.

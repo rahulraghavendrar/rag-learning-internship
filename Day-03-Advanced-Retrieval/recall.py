@@ -110,25 +110,6 @@ questions = [
         "rag pipeline"
     ),
 
-    (
-        "What chunking strategies are covered?",
-        "semantic chunking"
-    ),
-
-    (
-        "What retrieval approach is introduced in Day 3?",
-        "bm25"
-    ),
-
-    (
-        "Name one evaluation framework.",
-        "ragas"
-    ),
-
-    (
-        "Name one advanced rag variant.",
-        "agentic"
-    )
 
 ]
 

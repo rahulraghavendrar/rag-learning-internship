@@ -1,49 +1,16 @@
-from google.colab import files
-
-uploaded = files.upload()
-
-
-from langchain_community.document_loaders import (
-    PyPDFLoader
-)
-
-from langchain_text_splitters import (
-    RecursiveCharacterTextSplitter
-)
-
-from langchain_huggingface import (
-    HuggingFaceEmbeddings
-)
-
-from langchain_qdrant import (
-    QdrantVectorStore
-)
-
-from qdrant_client import (
-    QdrantClient
-)
-
-from qdrant_client.models import (
-    Distance,
-    VectorParams
-)
-
-
-print("\nSTEP 1 : LOADING PDF\n")
+from langchain_community.document_loaders import PyPDFLoader
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_qdrant import QdrantVectorStore
+from qdrant_client import QdrantClient
+from qdrant_client.models import Distance, VectorParams
+from sentence_transformers import CrossEncoder
 
 loader = PyPDFLoader(
     "1-Week RAG Deep Dive Learning Plan.pdf"
 )
 
 documents = loader.load()
-
-print(
-    "Pages Loaded:",
-    len(documents)
-)
-
-
-print("\nSTEP 2 : CHUNKING\n")
 
 splitter = RecursiveCharacterTextSplitter(
     chunk_size=500,
@@ -54,29 +21,17 @@ chunks = splitter.split_documents(
     documents
 )
 
-print(
-    "Chunks Created:",
-    len(chunks)
-)
-
-
-print("\nSTEP 3 : EMBEDDINGS\n")
+for i, chunk in enumerate(chunks):
+    chunk.metadata["chunk_id"] = i
 
 embedding_model = HuggingFaceEmbeddings(
-    model_name=
-    "sentence-transformers/all-MiniLM-L6-v2"
+    model_name="sentence-transformers/all-MiniLM-L6-v2"
 )
 
-
-print("\nSTEP 4 : QDRANT\n")
-
-client = QdrantClient(
-    ":memory:"
-)
+client = QdrantClient(":memory:")
 
 client.create_collection(
-    collection_name="recall_demo",
-
+    collection_name="rag",
     vectors_config=VectorParams(
         size=384,
         distance=Distance.COSINE
@@ -85,93 +40,88 @@ client.create_collection(
 
 vectorstore = QdrantVectorStore(
     client=client,
-    collection_name="recall_demo",
+    collection_name="rag",
     embedding=embedding_model
 )
 
-vectorstore.add_documents(
-    chunks
-)
-
-print("Chunks Stored")
-
-
-TOP_K = 5
+vectorstore.add_documents(chunks)
 
 retriever = vectorstore.as_retriever(
-    search_kwargs={"k": TOP_K}
+    search_kwargs={"k": 50}
 )
 
-
-questions = [
-
-    (
-        "What is the goal of Day 1?",
-        "rag pipeline"
-    ),
-
-
-]
-
-
-print("\nSTEP 5 : CALCULATING RECALL\n")
-
-correct = 0
-
-total = len(
-    questions
+reranker = CrossEncoder(
+    "cross-encoder/ms-marco-MiniLM-L-6-v2"
 )
 
+TARGET_RECALL = 0.85
+RELEVANCE_THRESHOLD = 5.0
 
-for query, keyword in questions:
+while True:
 
-    print("\nQuestion:")
+    query = input("\nAsk Question: ")
 
-    print(query)
+    if query.lower() == "exit":
+        break
 
-    results = retriever.invoke(
-        query
+    retrieved_docs = retriever.invoke(query)
+
+    pairs = [
+        (query, doc.page_content)
+        for doc in retrieved_docs
+    ]
+
+    scores = reranker.predict(pairs)
+
+    reranked = sorted(
+        zip(scores, retrieved_docs),
+        key=lambda x: x[0],
+        reverse=True
     )
 
-    found = False
+    relevant_docs = [
+        (score, doc)
+        for score, doc in reranked
+        if score >= RELEVANCE_THRESHOLD
+    ]
 
-    for doc in results:
+    total_relevant = len(relevant_docs)
 
-        if keyword.lower() in (
-            doc.page_content.lower()
-        ):
+    if total_relevant == 0:
+        print("\nNo Relevant Chunks Found")
+        continue
 
-            found = True
+    selected_k = total_relevant
 
+    for k in range(
+        1,
+        total_relevant + 1
+    ):
+
+        recall = k / total_relevant
+
+        if recall >= TARGET_RECALL:
+            selected_k = k
             break
 
-    if found:
+    final_results = relevant_docs[:selected_k]
 
+    print(f"\nTarget Recall : {TARGET_RECALL}")
+    print(f"Selected K    : {selected_k}")
+    print(f"Actual Recall : {recall:.4f}")
+
+    for rank, (score, doc) in enumerate(
+        final_results,
+        start=1
+    ):
+
+        print(f"\nRank {rank}")
         print(
-            "Relevant Chunk Retrieved"
+            f"Chunk ID : {doc.metadata['chunk_id']}"
         )
-
-        correct += 1
-
-    else:
-
         print(
-            "Relevant Chunk NOT Retrieved"
+            f"Score    : {score:.4f}"
         )
-
-
-recall = (
-    correct / total
-)
-
-print("\n" + "=" * 60)
-
-print(
-    f"Recall@{TOP_K}: {recall:.4f}"
-)
-
-print(
-    f"Recall Percentage: {recall*100:.2f}%"
-)
-
-print("=" * 60)
+        print()
+        print(doc.page_content)
+        print("\n" + "=" * 60)

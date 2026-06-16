@@ -288,6 +288,423 @@ Returns relevance scores.
 
 5. Most production systems combine BM25 and Dense Retrieval.
 
+# Hybrid Search Variants
+
+After learning Hybrid Search, an important question arises:
+
+```text
+How should BM25 and Dense Retrieval results be combined?
+```
+
+There are two common approaches:
+
+1. Union-Based Hybrid Retrieval
+2. Intersection-Based Hybrid Retrieval
+
+---
+
+# Union-Based Hybrid Retrieval
+
+Most beginner implementations use:
+
+```text
+BM25 Results
+
++
+
+Dense Results
+```
+
+Mathematically:
+
+```text
+A ∪ B
+```
+
+Example:
+
+BM25 returns:
+
+```text
+Chunk 1
+Chunk 2
+Chunk 3
+```
+
+Dense Retrieval returns:
+
+```text
+Chunk 2
+Chunk 3
+Chunk 5
+```
+
+Union:
+
+```text
+Chunk 1
+Chunk 2
+Chunk 3
+Chunk 5
+```
+
+All unique chunks are returned.
+
+---
+
+## Workflow
+
+```text
+Question
+↓
+BM25 Search
+
+and
+
+Dense Search
+↓
+Combine Results
+↓
+Remove Duplicates
+↓
+Final Chunks
+```
+
+---
+
+## Advantages
+
+* Higher Recall
+* More Documents Retrieved
+* Lower Chance Of Missing Relevant Information
+
+---
+
+## Disadvantages
+
+* More Noise
+* More Irrelevant Chunks
+* Larger Context Sent To LLM
+
+---
+
+# Intersection-Based Hybrid Retrieval
+
+Instead of returning everything:
+
+```text
+BM25 Results
+
+∩
+
+Dense Results
+```
+
+Mathematically:
+
+```text
+A ∩ B
+```
+
+Only chunks retrieved by BOTH systems are returned.
+
+---
+
+## Example
+
+BM25 returns:
+
+```text
+Chunk 1
+Chunk 2
+Chunk 3
+```
+
+Dense Retrieval returns:
+
+```text
+Chunk 2
+Chunk 3
+Chunk 5
+```
+
+Intersection:
+
+```text
+Chunk 2
+Chunk 3
+```
+
+Only the common chunks survive.
+
+---
+
+# Workflow
+
+```text
+Question
+↓
+BM25 Search
+↓
+Top Chunks
+
+and
+
+Dense Search
+↓
+Top Chunks
+
+↓
+
+Find Common Chunks
+
+↓
+
+Final Results
+```
+
+---
+
+# Why Use Intersection Retrieval?
+
+A chunk returned by both systems has passed:
+
+```text
+Keyword Matching
+```
+
+and
+
+```text
+Semantic Matching
+```
+
+Therefore:
+
+```text
+Higher Confidence
+```
+
+that the chunk is relevant.
+
+---
+
+# How We Implemented It
+
+Instead of comparing IDs:
+
+```python
+intersection_ids = set(
+    bm25_indices
+).intersection(
+    set(dense_indices)
+)
+```
+
+we used:
+
+```python
+bm25_texts.intersection(
+    dense_texts
+)
+```
+
+because:
+
+* Simpler
+* No metadata dependency
+* Easier to understand
+
+---
+
+# Union vs Intersection
+
+| Feature           | Union  | Intersection |
+| ----------------- | ------ | ------------ |
+| Recall            | High   | Lower        |
+| Precision         | Medium | High         |
+| Number Of Results | More   | Fewer        |
+| Noise             | More   | Less         |
+| Context Size      | Larger | Smaller      |
+| Confidence        | Medium | High         |
+
+---
+
+# When To Use Union?
+
+Use Union Retrieval when:
+
+```text
+Missing Information
+is more dangerous than
+retrieving extra information.
+```
+
+Examples:
+
+* Research Assistants
+* Legal Search
+* Medical Search
+* Knowledge Discovery
+
+Goal:
+
+```text
+High Recall
+```
+
+---
+
+# When To Use Intersection?
+
+Use Intersection Retrieval when:
+
+```text
+Only highly relevant
+chunks should be returned.
+```
+
+Examples:
+
+* Customer Support
+* FAQ Systems
+* Enterprise Chatbots
+* Internal Documentation Search
+
+Goal:
+
+```text
+High Precision
+```
+
+---
+
+# Production Systems
+
+Many production RAG systems use:
+
+```text
+Union Retrieval
+```
+
+for initial retrieval.
+
+Then:
+
+```text
+Reranking
+```
+
+is applied later.
+
+Some systems use:
+
+```text
+Intersection Retrieval
+```
+
+when precision is more important than recall.
+
+---
+
+# Libraries Used
+
+## BM25Okapi
+
+```python
+from rank_bm25 import BM25Okapi
+```
+
+Purpose:
+
+```text
+Keyword Search
+```
+
+---
+
+## QdrantVectorStore
+
+```python
+from langchain_qdrant import QdrantVectorStore
+```
+
+Purpose:
+
+```text
+Dense Retrieval
+```
+
+---
+
+## intersection()
+
+```python
+bm25_texts.intersection(
+    dense_texts
+)
+```
+
+Purpose:
+
+```text
+Find Common Chunks
+```
+
+between BM25 and Dense Retrieval.
+
+---
+
+# Interview Questions
+
+### What is Hybrid Search?
+
+Hybrid Search combines BM25 and Dense Retrieval to improve retrieval quality.
+
+---
+
+### What is Union-Based Hybrid Retrieval?
+
+Union Retrieval returns all unique chunks retrieved by either BM25 or Dense Retrieval.
+
+---
+
+### What is Intersection-Based Hybrid Retrieval?
+
+Intersection Retrieval returns only chunks retrieved by both BM25 and Dense Retrieval.
+
+---
+
+### Which has higher recall?
+
+```text
+Union Retrieval
+```
+
+---
+
+### Which has higher precision?
+
+```text
+Intersection Retrieval
+```
+
+---
+
+# Key Takeaways
+
+1. Hybrid Search combines BM25 and Dense Retrieval.
+
+2. Hybrid Search can be implemented using Union or Intersection.
+
+3. Union Retrieval prioritizes Recall.
+
+4. Intersection Retrieval prioritizes Precision.
+
+5. Intersection Retrieval returns only chunks agreed upon by both retrieval systems.
+
+6. Production RAG systems often start with Union Retrieval and later apply Reranking.
+
 Next:
 
-➡ Hybrid Search
+➡ Query Expansion

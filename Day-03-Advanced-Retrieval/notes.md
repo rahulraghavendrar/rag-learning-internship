@@ -2616,10 +2616,476 @@ Reordering retrieved documents using a more accurate relevance model.
 
 5. Most production RAG systems use Bi-Encoder Retrieval + Cross-Encoder Reranking.
 
+# Retrieval Evaluation Metrics
+
+Until now we focused on improving retrieval quality using:
+
+* BM25
+* Dense Retrieval
+* Hybrid Search
+* Query Expansion
+* Query Rewriting
+* Metadata Filtering
+* Structured Retrieval
+* Cross-Encoder Reranking
+
+However, we need a way to measure whether retrieval has actually improved.
+
+This is where retrieval evaluation metrics are used.
+
+The first metric is:
+
+Recall@K
+
+---
+
+# What is Recall@K?
+
+Recall@K measures:
+
+How often the retriever successfully returns the correct document within the top K retrieved results.
+
+In simple terms:
+
+```text
+Did the retriever find the correct chunk?
+```
+
+---
+
+# Why Do We Need Recall@K?
+
+Suppose a user asks:
+
+```text
+What is BM25?
+```
+
+Correct Chunk:
+
+```text
+BM25 is a ranking algorithm used in information retrieval.
+```
+
+Retriever returns:
+
+```text
+Rank 1 → Chunk A
+
+Rank 2 → Chunk B
+
+Rank 3 → BM25 Chunk
+```
+
+The correct chunk exists within the top 3 results.
+
+Result:
+
+Recall@3 = 1
+
+---
+
+Another Example
+
+Retriever returns:
+
+```text
+Rank 1 → Chunk A
+
+Rank 2 → Chunk B
+
+Rank 3 → Chunk C
+```
+
+BM25 chunk is missing.
+
+Result:
+
+Recall@3 = 0
+
+---
+
+# Recall@K Formula
+
+Recall@K =
+
+(Number of Queries where relevant document appears in Top K)
+
+/
+
+(Total Number of Queries)
+
+---
+
+# Example Calculation
+
+Suppose:
+
+```text
+10 Questions
+```
+
+Relevant chunk retrieved for:
+
+```text
+8 Questions
+```
+
+within:
+
+```text
+Top 5 Results
+```
+
+Then:
+
+```text
+Recall@5 = 8 / 10
+```
+
+Result:
+
+```text
+0.80
+
+80%
+```
+
+---
+
+# What Recall Measures
+
+Recall answers:
+
+```text
+Can the retriever find the correct chunk?
+```
+
+---
+
+# What Recall Does NOT Measure
+
+Recall does not care about ranking position.
+
+Example:
+
+Correct Chunk at:
+
+```text
+Rank 1
+```
+
+and
+
+```text
+Rank 10
+```
+
+Both count as:
+
+```text
+Retrieved
+```
+
+Therefore:
+
+Recall cannot evaluate ranking quality.
+
+---
+
+# Relationship To Reranking
+
+Suppose:
+
+Before Reranking:
+
+```text
+Correct Chunk = Rank 7
+```
+
+After Reranking:
+
+```text
+Correct Chunk = Rank 1
+```
+
+Recall@10:
+
+```text
+1
+```
+
+in both cases.
+
+Recall remains unchanged.
+
+However:
+
+Ranking quality improved.
+
+This is why MRR and NDCG exist.
+
+---
+
+# Common Recall Values
+
+Most retrieval systems evaluate:
+
+* Recall@1
+* Recall@3
+* Recall@5
+* Recall@10
+
+---
+
+## Recall@1
+
+Correct chunk must appear at Rank 1.
+
+Very strict.
+
+---
+
+## Recall@3
+
+Correct chunk must appear within Top 3.
+
+Moderately strict.
+
+---
+
+## Recall@5
+
+Most common for RAG systems.
+
+Correct chunk must appear within Top 5.
+
+---
+
+## Recall@10
+
+More forgiving.
+
+Used for evaluating larger retrieval pipelines.
+
+---
+
+# Recall Evaluation Workflow
+
+Question
+↓
+Retriever
+↓
+Top K Results
+↓
+Check For Correct Chunk
+↓
+Retrieved?
+
+YES → 1
+
+NO → 0
+
+↓
+
+Compute Average
+
+---
+
+# Example Ground Truth Dataset
+
+```python
+questions = [
+
+    (
+        "What is BM25?",
+        "bm25"
+    ),
+
+    (
+        "What is Query Expansion?",
+        "query expansion"
+    ),
+
+    (
+        "What is NDCG?",
+        "ndcg"
+    )
+
+]
+```
+
+Each question contains:
+
+* Query
+* Expected Answer Keyword
+
+---
+
+# Libraries Used
+
+No special library is required.
+
+Recall is usually implemented manually using Python.
+
+This is very common in RAG evaluation pipelines.
+
+---
+
+# Functions Used
+
+## retriever.invoke()
+
+```python
+results = retriever.invoke(
+    query
+)
+```
+
+Purpose:
+
+Retrieves top K chunks from Qdrant.
+
+---
+
+## len()
+
+```python
+len(questions)
+```
+
+Purpose:
+
+Returns total number of evaluation questions.
+
+---
+
+## lower()
+
+```python
+keyword.lower()
+```
+
+Purpose:
+
+Makes text comparison case-insensitive.
+
+---
+
+# Recall Calculation Logic
+
+For every question:
+
+```text
+Retrieve Top K Chunks
+↓
+Check If Expected Answer Exists
+↓
+Count Successes
+```
+
+Finally:
+
+```text
+Recall
+
+=
+
+Correct Queries
+
+/
+
+Total Queries
+```
+
+---
+
+# Example Output
+
+```text
+Recall@5 = 0.80
+
+Recall Percentage = 80%
+```
+
+Meaning:
+
+80% of evaluation questions successfully retrieved the correct chunk within the top 5 results.
+
+---
+
+# Advantages
+
+* Simple To Understand
+* Easy To Implement
+* Measures Retrieval Coverage
+* Common Industry Metric
+
+---
+
+# Disadvantages
+
+* Ignores Ranking Position
+* Cannot Measure Retrieval Ordering
+* Cannot Measure Chunk Relevance Quality
+
+---
+
+# Interview Questions
+
+### What is Recall@K?
+
+Recall@K measures whether the relevant document appears within the top K retrieved results.
+
+---
+
+### Why is Recall important in RAG?
+
+If retrieval cannot find relevant chunks, the LLM cannot generate accurate answers.
+
+---
+
+### What does Recall fail to measure?
+
+Recall does not evaluate ranking quality.
+
+---
+
+### Is Recall enough to evaluate retrieval?
+
+No.
+
+Recall only measures retrieval coverage.
+
+MRR and NDCG are also needed.
+
+---
+
+# Key Takeaways
+
+1. Recall@K measures retrieval coverage.
+
+2. Recall answers:
+
+   Did we retrieve the correct chunk?
+
+3. Recall ignores ranking position.
+
+4. Recall is commonly measured at:
+
+   * Recall@1
+   * Recall@3
+   * Recall@5
+   * Recall@10
+
+5. Recall is the first retrieval evaluation metric.
+
+6. Recall is usually implemented manually in Python.
+
 Next:
 
-➡ Recall@K
+➡ MRR (Mean Reciprocal Rank)
 
-➡ MRR
+➡ NDCG (Normalized Discounted Cumulative Gain)
 
-➡ NDCG
+➡ Day 03 Evaluation Pipeline

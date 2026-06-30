@@ -2,44 +2,56 @@
 
 ## Goal
 
-Learn the core concepts behind Retrieval-Augmented Generation (RAG) before using frameworks like LangChain.
+Build a strong understanding of the concepts behind Retrieval-Augmented Generation (RAG) before building complete RAG systems using LangChain and Vector Databases.
 
 ---
 
 # 1. Embeddings
 
-Embeddings are numerical representations of text.
+Embeddings are numerical representations of text that capture semantic meaning.
+
+Example:
+
+Text:
+
+Internship duration is 2 months
+
+↓
+
+Embedding:
+
+[0.12, -0.44, 0.89, ...]
+
+Similar meanings produce similar vectors.
 
 Example:
 
 ```text
-"Internship duration is 2 months"
+"Interns receive a stipend"
+
+and
+
+"Interns are paid monthly"
 ```
 
-↓
-
-```text
-[0.12, -0.44, 0.89, ...]
-```
-
-Similar meanings produce similar vectors.
+produce embeddings that are close together.
 
 ---
 
-## all-MiniLM-L6-v2
+# 2. all-MiniLM-L6-v2
 
-Used through:
+Model used:
 
 ```python
 model = SentenceTransformer("all-MiniLM-L6-v2")
 ```
 
-### Meaning
+Meaning:
 
 ```text
 all
 │
-├── Trained on many datasets
+├── Trained on many sentence datasets
 
 MiniLM
 │
@@ -57,12 +69,12 @@ v2
 Output:
 
 ```text
-384-dimensional embedding
+384-Dimensional Embedding
 ```
 
 ---
 
-## Embedding Generation Pipeline
+# 3. Embedding Generation Pipeline
 
 ```text
 Text
@@ -81,7 +93,27 @@ Embedding Layer
 
 ↓
 
-6 Transformer Layers
+Transformer Layer 1
+
+↓
+
+Transformer Layer 2
+
+↓
+
+Transformer Layer 3
+
+↓
+
+Transformer Layer 4
+
+↓
+
+Transformer Layer 5
+
+↓
+
+Transformer Layer 6
 
 ↓
 
@@ -94,24 +126,38 @@ Sentence Embedding
 
 ---
 
-## encode()
+# 4. encode()
+
+Used to convert text into embeddings.
 
 ```python
 embedding = model.encode(text)
 ```
 
-Converts text into a 384-dimensional vector.
+Example:
+
+```text
+Internship duration is 2 months
+
+↓
+
+[0.12, -0.44, 0.89, ...]
+```
 
 ---
 
-# 2. Cosine Similarity
+# 5. Cosine Similarity
 
-Measures semantic similarity between embeddings.
+Measures similarity between two embeddings.
+
+Formula:
+
+cos(θ) = (A · B) / (||A|| ||B||)
 
 Interpretation:
 
 ```text
-1.0  → Almost identical
+1.0  → Nearly identical
 
 0.8  → Very similar
 
@@ -126,18 +172,19 @@ Used in:
 
 * Semantic Search
 * Vector Databases
-* RAG Retrieval
+* Retrieval Systems
+* RAG
 
 ---
 
-# 3. Chunking
+# 6. Chunking
 
-Large documents should not be embedded as a single block.
+Large documents should not be embedded as one large block.
 
-Instead:
+Workflow:
 
 ```text
-PDF
+Document
 
 ↓
 
@@ -156,12 +203,12 @@ Embeddings
 
 ## Fixed Size Chunking
 
-Split text by word count.
+Splits text based on character or word count.
 
 Example:
 
 ```python
-chunk_size = 20
+chunk_size = 500
 ```
 
 Advantages:
@@ -171,7 +218,7 @@ Advantages:
 
 Disadvantages:
 
-* Can split sentences
+* May break sentences
 * Context loss
 
 ---
@@ -195,7 +242,7 @@ Cosine Similarity
 
 ↓
 
-Group Similar Sentences
+Meaning-Based Groups
 ```
 
 Advantages:
@@ -203,11 +250,15 @@ Advantages:
 * Better context preservation
 * Better retrieval quality
 
+Disadvantages:
+
+* More computationally expensive
+
 ---
 
-# 4. Manual Retrieval
+# 7. Manual Retrieval
 
-Implemented retrieval without a vector database.
+Retrieval without a vector database.
 
 Workflow:
 
@@ -220,7 +271,7 @@ Embeddings
 
 ↓
 
-Stored In Python List
+Stored In Python
 
 ↓
 
@@ -236,7 +287,7 @@ Cosine Similarity
 
 ↓
 
-Rank Results
+Ranking
 
 ↓
 
@@ -245,135 +296,20 @@ Best Match
 
 Important lesson:
 
-Retrieval quality depends heavily on document wording and context.
+Retrieval quality directly affects answer quality.
 
 ---
 
-# 5. Vector Databases
-
-Problem:
-
-Manual retrieval becomes slow for thousands or millions of documents.
-
-Solution:
-
-Vector Databases.
+# 8. Vector Databases
 
 Purpose:
 
+Store embeddings and perform fast similarity search.
+
+Workflow:
+
 ```text
 Documents
-
-↓
-
-Embeddings
-
-↓
-
-Storage
-
-↓
-
-Similarity Search
-
-↓
-
-Retrieved Results
-```
-
-Examples:
-
-* ChromaDB
-* Qdrant
-* Pinecone
-* FAISS
-* Weaviate
-
----
-
-# 6. ChromaDB Basics
-
-### Client
-
-```python
-client = chromadb.Client()
-```
-
-Database connection.
-
-### Collection
-
-```python
-collection = client.create_collection(...)
-```
-
-Similar to a SQL table.
-
-Stores:
-
-* Documents
-* Embeddings
-* IDs
-* Metadata
-
----
-
-### Add Documents
-
-```python
-collection.add(...)
-```
-
-Process:
-
-```text
-Document
-
-↓
-
-Embedding
-
-↓
-
-Stored
-```
-
----
-
-### Query Documents
-
-```python
-collection.query(...)
-```
-
-Process:
-
-```text
-Question
-
-↓
-
-Embedding
-
-↓
-
-Similarity Search
-
-↓
-
-Top Result
-```
-
----
-
-# Complete RAG Pipeline
-
-```text
-PDF
-
-↓
-
-Chunking
 
 ↓
 
@@ -385,11 +321,78 @@ Vector Database
 
 ↓
 
-User Query
+Similarity Search
 
 ↓
 
-Query Embedding
+Results
+```
+
+Examples:
+
+* ChromaDB
+* Qdrant
+* Pinecone
+* Weaviate
+* FAISS
+
+---
+
+# 9. ChromaDB Basics
+
+## Client
+
+```python
+client = chromadb.Client()
+```
+
+Creates a database connection.
+
+---
+
+## Collection
+
+```python
+collection = client.create_collection(...)
+```
+
+Similar to a SQL table.
+
+Stores:
+
+* Documents
+* Embeddings
+* Metadata
+* IDs
+
+---
+
+## add()
+
+```python
+collection.add(...)
+```
+
+Stores documents and embeddings.
+
+---
+
+## query()
+
+```python
+collection.query(...)
+```
+
+Performs similarity search.
+
+Workflow:
+
+```text
+Question
+
+↓
+
+Embedding
 
 ↓
 
@@ -397,158 +400,26 @@ Similarity Search
 
 ↓
 
-Retrieved Chunks
-
-↓
-
-LLM
-
-↓
-
-Final Answer
+Results
 ```
 
 ---
 
-# Key Interview Questions
+# 10. Qdrant Basics
 
-### What is an embedding?
+Qdrant is a production-grade vector database.
 
-A numerical representation of text meaning.
+Stores:
 
----
-
-### What is cosine similarity?
-
-A metric used to measure similarity between embeddings.
-
----
-
-### Why do we need chunking?
-
-Large documents must be split into smaller meaningful pieces before embedding.
-
----
-
-### What is retrieval?
-
-Finding the most relevant document or chunk for a query.
-
----
-
-### What is a vector database?
-
-A system that stores embeddings and performs similarity search.
-
----
-
-### What is ChromaDB?
-
-An open-source vector database used for semantic retrieval.
-
----
-
-# Foundation Completed
-
-✅ Embeddings
-
-✅ Cosine Similarity
-
-✅ Fixed Size Chunking
-
-✅ Semantic Chunking
-
-✅ Manual Retrieval
-
-✅ ChromaDB
-
-✅ Vector Databases
-
-Next:
-
-➡ LangChain
-
-➡ Qdrant
-
-➡ Advanced Retrieval
-
-➡ Full RAG Pipelines
-
-# Day 04 - Qdrant Basics
-
-## Goal
-
-Learn how a vector database stores embeddings and performs semantic retrieval.
-
-Qdrant is the first production-grade vector database I learned before moving to LangChain.
-
----
-
-# What is Qdrant?
-
-Qdrant is a Vector Database.
-
-Unlike SQL databases which store rows and columns, Qdrant stores:
-
-* Embeddings (Vectors)
-* Documents
+* Vectors
 * Metadata (Payloads)
-
-Workflow:
-
-```text
-Document
-↓
-Embedding
-↓
-Qdrant
-
-Question
-↓
-Embedding
-↓
-Qdrant Search
-↓
-Top Matches
-```
+* IDs
 
 ---
-
-# Why Do We Need Qdrant?
-
-Without Qdrant:
-
-```text
-Documents
-↓
-Embeddings
-↓
-Python List
-↓
-Compare One By One
-```
-
-This becomes slow for thousands or millions of documents.
-
-With Qdrant:
-
-```text
-Documents
-↓
-Embeddings
-↓
-Qdrant
-↓
-Fast Similarity Search
-```
-
----
-
-# Important Concepts
 
 ## Collection
 
-Similar to a SQL table.
+Similar to a table.
 
 Example:
 
@@ -556,17 +427,11 @@ Example:
 collection_name="internship_docs"
 ```
 
-Stores:
-
-* Points
-* Vectors
-* Payloads
-
 ---
 
 ## Point
 
-One record inside a collection.
+A single record.
 
 Contains:
 
@@ -576,67 +441,23 @@ Vector
 Payload
 ```
 
-Example:
-
-```python
-PointStruct(
-    id=1,
-    vector=[...],
-    payload={...}
-)
-```
-
----
-
-## Vector
-
-The embedding generated from text.
-
-Example:
-
-```text
-Internship duration is 2 months
-```
-
-↓
-
-```python
-[0.12, -0.44, 0.89, ...]
-```
-
 ---
 
 ## Payload
 
-Extra information stored alongside the vector.
+Additional information stored alongside vectors.
 
 Example:
 
 ```python
 payload={
-    "text":"Internship duration is 2 months"
+  "text":"Internship duration is 2 months"
 }
 ```
 
 ---
 
-# Libraries Used
-
-## SentenceTransformer
-
-```python
-from sentence_transformers import SentenceTransformer
-```
-
-Purpose:
-
-```text
-Text
-↓
-Embedding
-```
-
----
+# Important Qdrant Libraries
 
 ## QdrantClient
 
@@ -644,11 +465,7 @@ Embedding
 from qdrant_client import QdrantClient
 ```
 
-Purpose:
-
-```text
-Connect To Qdrant
-```
+Connects to Qdrant.
 
 ---
 
@@ -658,9 +475,7 @@ Connect To Qdrant
 from qdrant_client.models import VectorParams
 ```
 
-Purpose:
-
-Configure collection vectors.
+Configures vector dimensions and similarity metric.
 
 Example:
 
@@ -671,11 +486,6 @@ VectorParams(
 )
 ```
 
-Meaning:
-
-* Embedding size = 384
-* Similarity = Cosine
-
 ---
 
 ## PointStruct
@@ -684,29 +494,17 @@ Meaning:
 from qdrant_client.models import PointStruct
 ```
 
-Purpose:
-
-Create records for Qdrant.
+Creates records.
 
 ---
 
 ## Distance
 
 ```python
-from qdrant_client.models import Distance
-```
-
-Purpose:
-
-Choose similarity metric.
-
-Example:
-
-```python
 Distance.COSINE
 ```
 
-Other options:
+Similarity metrics available:
 
 * COSINE
 * DOT
@@ -719,29 +517,11 @@ For RAG:
 Distance.COSINE
 ```
 
-is usually used.
+is most common.
 
 ---
 
-# Important Functions
-
-## encode()
-
-```python
-model.encode(text)
-```
-
-Converts text into embeddings.
-
-Example:
-
-```text
-Text
-↓
-Vector
-```
-
----
+# Important Qdrant Functions
 
 ## tolist()
 
@@ -751,17 +531,15 @@ embedding.tolist()
 
 Converts:
 
-```python
-numpy array
-```
+```text
+NumPy Array
 
 ↓
 
-```python
-python list
+Python List
 ```
 
-Qdrant requires Python lists.
+Required by Qdrant.
 
 ---
 
@@ -773,14 +551,6 @@ client.create_collection(...)
 
 Creates a collection.
 
-Think:
-
-```text
-SQL
-↓
-CREATE TABLE
-```
-
 ---
 
 ## upsert()
@@ -789,12 +559,12 @@ CREATE TABLE
 client.upsert(...)
 ```
 
-Stores points inside Qdrant.
+Stores vectors.
 
 Think:
 
 ```text
-Save To Database
+Insert / Update
 ```
 
 ---
@@ -805,80 +575,544 @@ Save To Database
 client.query_points(...)
 ```
 
-Retrieves the most similar vectors.
+Performs semantic search.
 
-Think:
+---
+
+# 11. RAG Foundations
+
+RAG stands for:
+
+Retrieval-Augmented Generation
+
+Workflow:
+
+```text
+Question
+
+↓
+
+Retrieve Information
+
+↓
+
+Provide Context To LLM
+
+↓
+
+Generate Answer
+```
+
+---
+
+# Why Not Fine-Tuning?
+
+Fine-tuning:
+
+```text
+Knowledge
+
+↓
+
+Model Weights
+```
+
+Problem:
+
+Knowledge updates require retraining.
+
+---
+
+# Why RAG?
+
+RAG keeps knowledge external.
+
+```text
+Documents
+
+↓
+
+Vector Database
+
+↓
+
+Retrieve
+
+↓
+
+LLM
+```
+
+Knowledge updates require only re-indexing.
+
+---
+
+# RAG vs Fine-Tuning vs Prompt Engineering
+
+## Prompt Engineering
+
+Knowledge supplied through prompts.
+
+Advantages:
+
+* Easy
+* Fast
+
+Disadvantages:
+
+* Limited by context window
+
+---
+
+## Fine-Tuning
+
+Knowledge stored in model weights.
+
+Advantages:
+
+* Learns behavior
+
+Disadvantages:
+
+* Expensive
+* Hard to update
+
+---
+
+## RAG
+
+Knowledge stored externally.
+
+Advantages:
+
+* Easy updates
+* Lower cost
+* Scalable
+* Reduces hallucinations
+
+---
+
+# Core RAG Pipeline
+
+## Index
+
+```text
+Documents
+↓
+Chunking
+↓
+Embeddings
+↓
+Vector Database
+```
+
+---
+
+## Retrieve
 
 ```text
 Question
 ↓
 Embedding
 ↓
-Search
+Similarity Search
 ↓
-Top Matches
+Relevant Chunks
 ```
 
 ---
 
-# Top-K Retrieval
+## Augment
+
+```text
+Question
+
++
+
+Retrieved Context
+```
+
+---
+
+## Generate
+
+```text
+Prompt
+↓
+LLM
+↓
+Answer
+```
+
+---
+
+# 12. Retrieval Concepts
+
+## Top-K Retrieval
 
 Example:
 
 ```python
-limit=3
+k=3
 ```
 
-Meaning:
+Return:
 
 ```text
-Return Top 3 Results
+Top 3 Results
 ```
-
-Common values:
-
-* Top 3
-* Top 5
-* Top 10
 
 ---
 
-# Complete Pipeline
+## Context Window
+
+LLMs have limited input capacity.
+
+Therefore:
 
 ```text
+Retrieve Relevant Chunks
+
+Instead Of
+
+Entire Documents
+```
+
+---
+
+## Hallucinations
+
+Occurs when the LLM generates unsupported information.
+
+RAG reduces hallucinations by providing factual context.
+
+---
+
+## Precision
+
+Measures:
+
+```text
+How Accurate Retrieved Results Are
+```
+
+---
+
+## Recall
+
+Measures:
+
+```text
+How Many Relevant Results Were Retrieved
+```
+
+---
+
+# 13. LangChain Fundamentals
+
+LangChain connects RAG components together.
+
+Pipeline:
+
+```text
+PDF
+↓
+Loader
+↓
 Documents
+↓
+Splitter
+↓
+Chunks
 ↓
 Embeddings
 ↓
-Qdrant Collection
+Vector Store
 ↓
-User Question
+Retriever
+```
+
+---
+
+# Document
+
+Represents text and metadata.
+
+Example:
+
+```python
+Document(
+    page_content="Internship duration is 2 months",
+    metadata={"source":"pdf"}
+)
+```
+
+---
+
+# PyPDFLoader
+
+Loads PDFs.
+
+```python
+loader = PyPDFLoader("file.pdf")
+```
+
+Converts:
+
+```text
+PDF
+
 ↓
-Query Embedding
+
+Documents
+```
+
+---
+
+# RecursiveCharacterTextSplitter
+
+Creates chunks.
+
+```python
+RecursiveCharacterTextSplitter(
+    chunk_size=500,
+    chunk_overlap=50
+)
+```
+
+Important Parameters:
+
+* chunk_size
+* chunk_overlap
+
+---
+
+# HuggingFaceEmbeddings
+
+LangChain wrapper around embedding models.
+
+```python
+HuggingFaceEmbeddings(
+    model_name="sentence-transformers/all-MiniLM-L6-v2"
+)
+```
+
+Important Functions:
+
+## embed_query()
+
+Used for user questions.
+
+---
+
+## embed_documents()
+
+Used for document chunks.
+
+---
+
+# QdrantVectorStore
+
+LangChain wrapper around Qdrant.
+
+```python
+QdrantVectorStore.from_documents(...)
+```
+
+Creates:
+
+```text
+Chunks
 ↓
-query_points()
+Embeddings
 ↓
-Top Matching Documents
+Qdrant
+```
+
+---
+
+# Retriever
+
+Creates a retrieval interface.
+
+```python
+retriever = vectorstore.as_retriever()
+```
+
+Search:
+
+```python
+retriever.invoke(query)
+```
+
+Workflow:
+
+```text
+Question
+↓
+Embedding
+↓
+Similarity Search
+↓
+Top-K Chunks
+```
+
+---
+
+# Important Libraries Used
+
+## sentence_transformers
+
+```python
+from sentence_transformers import SentenceTransformer
+```
+
+Generate embeddings.
+
+---
+
+## sklearn.metrics.pairwise
+
+```python
+from sklearn.metrics.pairwise import cosine_similarity
+```
+
+Compute cosine similarity.
+
+---
+
+## chromadb
+
+```python
+import chromadb
+```
+
+Vector database.
+
+---
+
+## qdrant_client
+
+```python
+from qdrant_client import QdrantClient
+```
+
+Qdrant database client.
+
+---
+
+## langchain_core.documents
+
+```python
+from langchain_core.documents import Document
+```
+
+LangChain document object.
+
+---
+
+## langchain_community.document_loaders
+
+```python
+from langchain_community.document_loaders import PyPDFLoader
+```
+
+Load PDFs.
+
+---
+
+## langchain_text_splitters
+
+```python
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+```
+
+Chunk documents.
+
+---
+
+## langchain_huggingface
+
+```python
+from langchain_huggingface import HuggingFaceEmbeddings
+```
+
+Generate embeddings inside LangChain.
+
+---
+
+## langchain_qdrant
+
+```python
+from langchain_qdrant import QdrantVectorStore
+```
+
+Connect LangChain with Qdrant.
+
+---
+
+# Complete Preliminary Foundation Pipeline
+
+```text
+PDF
+
+↓
+
+PyPDFLoader
+
+↓
+
+Documents
+
+↓
+
+Chunking
+
+↓
+
+Embeddings
+
+↓
+
+Qdrant
+
+↓
+
+Retriever
+
+↓
+
+Relevant Chunks
+
+↓
+
+LLM
+
+↓
+
+Answer
 ```
 
 ---
 
 # Key Takeaways
 
-✅ Qdrant is a vector database.
+✅ Embeddings represent semantic meaning.
 
-✅ Collections store vectors and payloads.
+✅ Cosine similarity measures semantic similarity.
 
-✅ Points are individual records.
+✅ Chunking improves retrieval quality.
 
-✅ Embeddings are stored as vectors.
+✅ Vector databases store embeddings efficiently.
 
-✅ Payloads store original text and metadata.
+✅ ChromaDB and Qdrant enable semantic search.
 
-✅ upsert() stores data.
+✅ RAG combines retrieval and generation.
 
-✅ query_points() retrieves data.
+✅ LangChain automates the RAG workflow.
 
-✅ Qdrant performs semantic search using vector similarity.
+✅ Qdrant + LangChain forms the retrieval layer of modern RAG systems.
 
-✅ This forms the Retrieve step of a RAG pipeline.
+✅ Retrieval quality directly impacts answer quality.
+
+✅ Understanding these fundamentals is essential before building full RAG applications.

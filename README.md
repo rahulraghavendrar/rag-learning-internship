@@ -371,7 +371,41 @@ Capstone:
 Foundation        ✅ Completed
 Day 01            ✅ Completed
 Day 02            ✅ Completed
-Day 03            ⏳ Next
-Day 04            ⬜ Pending
-Day 05            ⬜ Pending
+Day 03            ✅ Completed
+Day 04            ✅ Completed
+Day 05            ✅ Completed
 ```
+---
+
+## ✅ MCP Integration
+
+### Objective
+
+Expose the retrieval step of the RAG pipeline as an MCP Tool using FastMCP.
+
+### Topics Covered
+
+- Model Context Protocol (MCP)
+- MCP Server
+- MCP Tool Registration
+- FastMCP
+- MCP Inspector
+- Tool Invocation
+- LangChain Integration
+- Qdrant Retrieval through MCP
+
+---
+
+### MCP Pipeline
+
+```text
+Question
+↓
+MCP Tool
+(retrieve_documents)
+↓
+LangChain Retriever
+↓
+Qdrant Vector Database
+↓
+Top-K Retrieved Chunks

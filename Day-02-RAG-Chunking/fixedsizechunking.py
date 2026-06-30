@@ -15,5 +15,5 @@ for size in sizes:
   chunks=splitter.split_text(text)
   print("No of chunks is:",len(chunks))
   for chunk in chunks:
-    print(chunks)
+    print(chunk)
     print("\n")

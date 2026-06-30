@@ -2,7 +2,7 @@
 
 ## Goal
 
-Understand the Retrieval-Augmented Generation (RAG) pipeline from end to end and learn why modern AI applications use RAG instead of relying solely on fine-tuning or prompt engineering.
+Understand the Retrieval-Augmented Generation (RAG) pipeline end-to-end and build a basic retrieval system using embeddings, vector databases, and semantic search.
 
 ---
 
@@ -12,7 +12,12 @@ RAG stands for:
 
 Retrieval-Augmented Generation
 
-It is a technique where an LLM is provided with relevant external information before generating an answer.
+RAG combines:
+
+1. Retrieval of relevant information
+2. Generation of answers using an LLM
+
+Instead of expecting the LLM to memorize all knowledge, RAG retrieves information from external sources and provides it to the model before generating an answer.
 
 Traditional LLM:
 
@@ -26,58 +31,74 @@ RAG:
 
 Question
 ↓
-Retrieve Relevant Information
+Retrieve Information
 ↓
-Provide Context To LLM
+Provide Context
 ↓
-Generate Answer
+LLM
+↓
+Answer
 
 ---
 
 # Why Not Just Fine-Tune?
 
-Fine-tuning stores knowledge inside the model weights.
+Fine-tuning stores knowledge inside model weights.
 
-Example:
+Workflow:
 
-Company Policy
+Documents
 ↓
 Fine-Tune Model
 ↓
 Knowledge Stored In Weights
 
-Problem:
+Problems:
 
-If the policy changes:
-
-* Retraining is required
 * Expensive
-* Time consuming
-* Difficult to maintain
+* Requires retraining for updates
+* Knowledge becomes outdated
+* Difficult to maintain large knowledge bases
+
+Example:
+
+If a company policy changes, the model must be retrained.
 
 ---
 
 # Why RAG Is Preferred
 
-RAG keeps knowledge outside the model.
+RAG keeps knowledge external.
 
-Example:
+Workflow:
 
-Company Policy PDF
+Documents
+↓
+Embeddings
 ↓
 Vector Database
 ↓
-Retrieve Relevant Information
+Retrieval
 ↓
 LLM
 
-If information changes:
+Benefits:
 
-* Update the documents
-* Re-index the vector database
+* Easy to update
 * No retraining required
+* Scalable
+* Lower cost
+* Reduces hallucinations
 
-This makes RAG more flexible and scalable.
+When documents change:
+
+Documents
+↓
+Re-index
+↓
+Done
+
+No model retraining is needed.
 
 ---
 
@@ -87,17 +108,18 @@ This makes RAG more flexible and scalable.
 
 Approach:
 
-Question + Large Prompt
+Question + Prompt
 
 Advantages:
 
-* Fastest to implement
+* Fastest implementation
 * No training required
 
 Disadvantages:
 
-* Context window limitations
-* Difficult to scale for large knowledge bases
+* Limited context window
+* Not suitable for large knowledge bases
+* Knowledge must fit inside prompts
 
 ---
 
@@ -105,18 +127,18 @@ Disadvantages:
 
 Approach:
 
-Knowledge stored inside model weights
+Store knowledge inside model weights.
 
 Advantages:
 
-* Model learns specific behavior
-* Useful for style and task adaptation
+* Learns specific behavior
+* Useful for domain adaptation
 
 Disadvantages:
 
 * Expensive
-* Requires retraining for updates
-* Knowledge becomes outdated
+* Hard to update
+* Requires retraining
 
 ---
 
@@ -124,25 +146,25 @@ Disadvantages:
 
 Approach:
 
-Knowledge stored externally and retrieved when needed
+Store knowledge externally and retrieve it when needed.
 
 Advantages:
 
 * Easy updates
 * Lower cost
-* More scalable
-* Reduces hallucinations
+* Scalable
+* Better factual grounding
 
 Disadvantages:
 
 * Requires retrieval infrastructure
-* Retrieval quality affects final answer
+* Retrieval quality impacts answer quality
 
 ---
 
 # Core RAG Pipeline
 
-## 1. Index
+## Step 1: Index
 
 Prepare documents for retrieval.
 
@@ -154,9 +176,11 @@ Embeddings
 ↓
 Vector Database
 
+This stage happens before users ask questions.
+
 ---
 
-## 2. Retrieve
+## Step 2: Retrieve
 
 User asks a question.
 
@@ -170,7 +194,7 @@ Relevant Chunks
 
 ---
 
-## 3. Augment
+## Step 3: Augment
 
 Combine:
 
@@ -178,21 +202,19 @@ Question
 +
 Retrieved Chunks
 
-into a prompt.
-
 Example:
 
 Question:
+
 How long is the internship?
 
-Context:
+Retrieved Context:
+
 The internship duration is 2 months.
 
 ---
 
-## 4. Generate
-
-The LLM generates an answer using the retrieved context.
+## Step 4: Generate
 
 Question + Context
 ↓
@@ -200,55 +222,11 @@ LLM
 ↓
 Answer
 
----
+Example:
 
-# Real World Use Cases
+Answer:
 
-## Documentation Search
-
-Examples:
-
-* Company documentation
-* API documentation
-* Product manuals
-
----
-
-## Enterprise Knowledge Base
-
-Examples:
-
-* HR policies
-* Internal procedures
-* Employee handbooks
-
----
-
-## Customer Support
-
-Examples:
-
-* FAQ systems
-* Product support assistants
-
----
-
-## Domain Experts
-
-Examples:
-
-* Legal assistants
-* Medical knowledge assistants
-* Financial advisory systems
-
----
-
-## Research Assistants
-
-Examples:
-
-* Research paper search
-* Literature review systems
+The internship duration is 2 months.
 
 ---
 
@@ -264,6 +242,18 @@ Examples:
 * Weaviate
 * FAISS
 
+Purpose:
+
+Documents
+↓
+Embeddings
+↓
+Storage
+↓
+Similarity Search
+↓
+Retrieved Results
+
 ---
 
 # Embedding Models
@@ -272,7 +262,7 @@ Embedding models convert text into vectors.
 
 Example:
 
-Sentence:
+Text:
 
 Internship duration is 2 months
 
@@ -292,7 +282,9 @@ Examples:
 
 # Similarity Search
 
-Similarity search finds documents with similar meaning.
+Similarity search retrieves documents with similar meaning.
+
+Example:
 
 Question:
 
@@ -302,15 +294,15 @@ Document:
 
 Interns receive a stipend.
 
-Even though the words are different, embeddings capture the semantic meaning and similarity search retrieves the correct document.
+Even though the wording differs, semantic similarity allows the correct document to be retrieved.
 
 ---
 
 # Indexing
 
-Indexing is the process of preparing documents for retrieval.
+Indexing is the process of preparing data for retrieval.
 
-Pipeline:
+Workflow:
 
 Documents
 ↓
@@ -320,28 +312,140 @@ Embeddings
 ↓
 Vector Database
 
-Without indexing:
+Without indexing, retrieval is impossible.
 
-No retrieval is possible.
+---
+
+# Real World Applications of RAG
+
+## Documentation Search
+
+Examples:
+
+* API Documentation
+* Product Manuals
+* Technical Guides
+
+---
+
+## Enterprise Knowledge Bases
+
+Examples:
+
+* HR Policies
+* Internal Procedures
+* Employee Handbooks
+
+---
+
+## Customer Support
+
+Examples:
+
+* FAQ Assistants
+* Product Support Bots
+
+---
+
+## Domain Experts
+
+Examples:
+
+* Legal Assistants
+* Medical Assistants
+* Financial Advisors
+
+---
+
+## Research Assistants
+
+Examples:
+
+* Literature Search
+* Research Paper Retrieval
+
+---
+
+# Lab 1 - Naive RAG Pipeline
+
+Objective:
+
+Build a retrieval system without generation.
+
+Pipeline:
+
+PDFs
+↓
+Loader
+↓
+Chunking
+↓
+Embeddings
+↓
+Qdrant
+↓
+Retriever
+↓
+Top Matching Chunks
+
+Components Used:
+
+* PyPDFLoader
+* RecursiveCharacterTextSplitter
+* HuggingFaceEmbeddings
+* QdrantVectorStore
+* Retriever
+
+Example Dataset:
+
+* internship.pdf
+* company_policy.pdf
+* ai_projects.pdf
+* employee_handbook.pdf
+* training_program.pdf
+
+Sample Query:
+
+What stipend do interns receive?
+
+Retrieved Result:
+
+Interns receive a stipend of 15000 rupees per month.
+
+---
+
+# Reading
+
+Paper:
+
+Retrieval-Augmented Generation for Knowledge-Intensive Tasks
+
+Authors:
+
+Patrick Lewis et al.
+
+Year:
+
+2020
+
+Main Contribution:
+
+Introduced the modern Retrieval-Augmented Generation architecture that combines retrieval systems with language models.
 
 ---
 
 # Key Takeaways
 
 1. RAG combines retrieval and generation.
-
 2. RAG keeps knowledge outside the model.
-
 3. Fine-tuning stores knowledge inside model weights.
-
 4. Prompt engineering relies only on prompts.
-
 5. RAG is easier to update and maintain.
-
-6. The core pipeline is:
+6. The RAG pipeline is:
 
 Index → Retrieve → Augment → Generate
 
 7. Vector databases store embeddings and enable semantic search.
-
-8. Retrieval quality is one of the most important factors in RAG performance.
+8. Retrieval quality directly impacts answer quality.
+9. A naive RAG system performs retrieval without generation.
+10. LangChain and Qdrant can be used to implement retrieval pipelines efficiently.

@@ -1,16 +1,87 @@
-# Virtual Environment
-venv/
-
-# Python Cache
+# =========================
+# Python
+# =========================
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
 
-# Jupyter
-.ipynb_checkpoints/
+# =========================
+# Virtual Environments
+# =========================
+venv/
+.venv/
+env/
+ENV/
 
+# =========================
+# Environment Variables
+# =========================
+.env
+*.env
+
+# =========================
 # VS Code
+# =========================
 .vscode/
 
+# =========================
+# PyCharm
+# =========================
+.idea/
+
+# =========================
+# Logs
+# =========================
+*.log
+
+# =========================
+# Python Build
+# =========================
+build/
+dist/
+*.egg-info/
+
+# =========================
+# Jupyter
+# =========================
+.ipynb_checkpoints/
+
+# =========================
 # OS Files
+# =========================
 .DS_Store
 Thumbs.db
+
+# =========================
+# Qdrant / Databases
+# =========================
+*.db
+*.sqlite
+*.sqlite3
+
+# =========================
+# Node / React
+# =========================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# =========================
+# React Build
+# =========================
+build/
+dist/
+
+# =========================
+# Coverage
+# =========================
+.coverage
+htmlcov/
+.pytest_cache/
+
+# =========================
+# Temporary Files
+# =========================
+*.tmp
+*.temp

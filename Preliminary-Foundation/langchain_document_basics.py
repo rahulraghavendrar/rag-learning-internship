@@ -1,6 +1,6 @@
 from langchain_core.documents import Document
 doc1=Document(
-    page_content="Internship duration is 2 months"
+    page_content="Internship duration is 2 months",
     metadata={
         "source": "internship_info.txt",
         "page": 1
